@@ -24,24 +24,30 @@ import javax.validation.Valid;
 public class AIChatController {
 
     @Autowired
-    private ChatClient chatClient;
-
-    @Autowired
     private SpeakService speakService;
 
     @Autowired
     private ChatService chatService;
 
+    /**
+     * 与大模型对话
+     */
     @PostMapping("/chat")
     public Result<String> Chat(@RequestBody @Valid ChatRequest chatRequest) {
         return chatService.Chat(chatRequest);
     }
 
+    /**
+     * 文本转语音
+     */
     @PostMapping("/speak")
     public byte[] Speak(@RequestBody @Valid SpeakRequest speakRequest){
         return speakService.TextToSpeech(speakRequest);
     }
 
+    /**
+     * 创建会话
+     */
     @PostMapping("/create")
     public Result<String> Create(){
         return chatService.Create();

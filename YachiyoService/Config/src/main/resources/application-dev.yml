@@ -18,6 +18,14 @@ spring:
         enabled: true
         model: all-minilm
       base-url: http://localhost:11434
+    openai-sdk:
+      api-key: ${openai.api-key}
+      base-url: ${openai.base-url}
+      chat:
+        options:
+          model: qwen-plus
+          temperature: 0.8
+
 
 # mybatis-plus 配置
 mybatis-plus:

@@ -5,6 +5,7 @@ import com.yachiyo.dto.ChatRequest;
 import com.yachiyo.mapper.ConversationMapper;
 import com.yachiyo.result.Result;
 import com.yachiyo.service.ChatService;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +14,7 @@ import org.springframework.stereotype.Service;
 @Service @Slf4j
 public class ChatServiceImpl implements ChatService {
 
-    @Autowired
+    @Resource(name = "ChatModel")
     private ChatClient chatClient;
 
     @Autowired

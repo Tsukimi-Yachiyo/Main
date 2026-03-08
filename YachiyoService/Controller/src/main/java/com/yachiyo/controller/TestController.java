@@ -12,6 +12,10 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 public class TestController {
 
+    /**
+     * 测试接口
+     * @return 测试字符串
+     */
     @GetMapping("/hello")
     public String Hello(){
         return "Hello World!";

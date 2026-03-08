@@ -29,7 +29,7 @@ public class HistoryController {
      * @return 对话记忆
      */
     @GetMapping("/{id}")
-    public Result<List<PromptRequest>> StringHistory(@PathVariable String id) throws Exception {
+    public Result<List<PromptRequest>> getHistory(@PathVariable String id) throws Exception {
         return historyService.getHistory(id);
     }
 
