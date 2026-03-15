@@ -789,7 +789,7 @@ TsukimiYachiyo/
 ## 12. 开发团队
 
 - **drayee** - 1473443474@qq.com
-- **Mr.Bone**
+- **Mr.Bone** - 13282447533@qq.com
 
 ## 13. 许可证
 
