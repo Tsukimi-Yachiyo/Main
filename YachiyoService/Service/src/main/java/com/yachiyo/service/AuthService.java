@@ -22,4 +22,12 @@ public interface AuthService {
      */
     @Schema(description = "注册请求")
     public Result<String> Register(RegisterRequest registerRequest);
+
+    /**
+     * 发送验证码
+     * @param email 邮箱
+     * @return 发送结果
+     */
+    @Schema(description = "发送验证码请求")
+    public Result<Boolean> SendCode(String email);
 }

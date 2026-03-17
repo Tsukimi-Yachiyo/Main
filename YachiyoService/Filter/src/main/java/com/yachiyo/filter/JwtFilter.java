@@ -44,7 +44,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 String userId = jwtUtils.getUserIdFromToken(jwt);
                 // 验证通过，继续处理请求
                 String username = jwtUtils.getNameFromToken(jwt);
-                User user = new User(Integer.parseInt(userId), username, null, null);
+                User user = new User(Integer.parseInt(userId), username, null, null, null);
                 List<GrantedAuthority> authorities = new ArrayList<>();
                 authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
                 UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(user, null, authorities);

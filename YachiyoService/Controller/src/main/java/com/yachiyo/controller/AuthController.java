@@ -42,4 +42,13 @@ public class AuthController {
         return authService.Register(registerRequest);
     }
 
+    /**
+     * 发送验证码
+     * @param email 邮箱
+     * @return 发送结果
+     */
+    @PostMapping("/send-code")
+    public Result<Boolean> SendCode(@RequestBody @Valid String email) {
+        return authService.SendCode(email);
+    }
 }

@@ -1,9 +1,13 @@
 package com.yachiyo.Config;
 
 
+import com.yachiyo.entity.User;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -27,11 +31,12 @@ public class SecuritySafeToolConfig {
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
 
-
-    public String getUnique() {
+    public String getUnique(int userId) {
         Random rand = new Random();
         int randomNum = rand.nextInt(Integer.MAX_VALUE);
-        redisTemplate.opsForValue().set("user:" + SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString(), randomNum,3600, TimeUnit.SECONDS);
+        HashOperations<String, String, Object> hashOps = redisTemplate.opsForHash();
+        hashOps.put("user:" + userId, "unique", String.valueOf(randomNum));
+        redisTemplate.expire("user:" + userId, 3600, TimeUnit.SECONDS);
         return String.valueOf(randomNum);
     }
 
@@ -44,6 +49,7 @@ public class SecuritySafeToolConfig {
     }
 
     public boolean checkUnique(int userId, String unique) {
-        return unique.equals(Objects.requireNonNull(redisTemplate.opsForValue().get("user:" + userId)).toString());
+        HashOperations<String, String, Object> hashOps = redisTemplate.opsForHash();
+        return unique.equals(Objects.requireNonNull(hashOps.get("user:" + userId, "unique")).toString());
     }
 }

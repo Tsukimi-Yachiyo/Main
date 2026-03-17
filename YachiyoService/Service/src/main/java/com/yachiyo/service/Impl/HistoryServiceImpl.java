@@ -37,4 +37,26 @@ public class HistoryServiceImpl implements HistoryService {
             return Result.error("获取会话列表失败");
         }
     }
+
+    @Override
+    public Result<Boolean> clearHistory(String conservationId) {
+        try {
+            chatMemoryHistoryToolConfig.clearHistory(Integer.parseInt(conservationId));
+            return Result.success(true);
+        } catch (Exception e) {
+            log.error("清空会话记忆失败", e);
+            return Result.error("清空会话记忆失败");
+        }
+    }
+
+    @Override
+    public Result<Boolean> clearAllHistory() {
+        try {
+            chatMemoryHistoryToolConfig.clearAllHistory();
+            return Result.success(true);
+        } catch (Exception e) {
+            log.error("清空所有会话记忆失败", e);
+            return Result.error("清空所有会话记忆失败");
+        }
+    }
 }

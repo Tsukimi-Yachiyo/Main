@@ -8,6 +8,24 @@ spring:
     username: ${mysql.username}
     password: ${mysql.password}
     driver-class-name: com.mysql.cj.jdbc.Driver
+  # 定时任务配置
+  task:
+    scheduling:
+      pool:
+        size: 5
+      thread-name-prefix: scheduling-task-
+  # 邮箱配置
+  mail:
+    host: smtp.qq.com
+    port: 465
+    username: ${email.username}
+    password: ${email.password}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          ssl:
+            enable: true
   # 模型配置
   ai:
     chat:
@@ -31,6 +49,13 @@ spring:
           model: qwen-plus
           temperature: 0.8
 
+custom:
+  config:
+    interval: "0 0 0/24 * * ? "
+    enable: true # 是否启用日期调度器
+    message: "初始配置"
+    holiday:
+      url: https://timor.tech/api/holiday/info/{date}
 
 # mybatis-plus 配置
 mybatis-plus:
@@ -50,7 +75,7 @@ logging:
 
 # 安全配置
 security:
-  open-api: /api/v1/auth/login,/api/v1/auth/register
+  open-api: /api/v1/auth/login,/api/v1/auth/register,/api/v1/auth/send-code
 
 # jwt 配置
 jwt:
@@ -58,3 +83,9 @@ jwt:
   expiration: 3600000
   token-header: "Authorization"
   token-prefix: "Bearer "
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: refresh

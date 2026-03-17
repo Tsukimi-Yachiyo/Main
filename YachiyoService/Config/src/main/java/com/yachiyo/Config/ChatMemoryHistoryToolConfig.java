@@ -90,6 +90,31 @@ public class ChatMemoryHistoryToolConfig {
         }
     }
 
+     /**
+     * 清空对话记忆
+     * @param id 会话id
+     */
+    public void clearHistory(int id) throws Exception {
+        if (messageMapper.delete(new QueryWrapper<Message>().eq("conversation_id", id)) > 0) {
+            log.info("清空会话记忆成功");
+        }else {
+            throw new Exception("清空会话记忆失败");
+        }
+    }
+
+    /**
+     * 清空所有对话记忆
+     */
+    public void clearAllHistory() throws Exception {
+        int userId = ((User) Objects.requireNonNull(Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getPrincipal())).getId();
+        conversationMapper.deleteById(userId);
+        if (messageMapper.delete(new QueryWrapper<Message>().eq("user_id", userId)) > 0) {
+            log.info("清空所有会话记忆成功");
+        }else {
+            throw new Exception("清空所有会话记忆失败");
+        }
+    }
+
     /**
      * 获取会话列表
      * @return 会话列表

@@ -22,5 +22,18 @@ public interface HistoryService {
      */
     Result<List<ConversationResponse>> getConservationIds();
 
+     /**
+     * 清空对话记忆
+     *
+     * @param conservationId 会话ID
+     * @return Result<Boolean>
+     */
+    Result<Boolean> clearHistory(String conservationId);
 
+    /**
+     * 清空所有对话记忆
+     *
+     * @return Result<Boolean>
+     */
+    Result<Boolean> clearAllHistory();
 }
