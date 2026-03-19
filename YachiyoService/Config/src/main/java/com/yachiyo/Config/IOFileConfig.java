@@ -2,13 +2,12 @@ package com.yachiyo.Config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 @Configuration
@@ -80,28 +79,26 @@ public class IOFileConfig {
     }
 
     /**
-     * 检查文件是否存在
-     */
-    public boolean checkFileExist(String fileName) {
-        return Files.exists(Paths.get(UPLOAD_FILE_PATH + fileName));
-    }
-
-
-    /**
      * 检查目录是否存在
      */
     public boolean checkDirExist(String dirName) {
-        return Files.exists(Paths.get(UPLOAD_FILE_PATH + dirName));
+        return !Files.exists(Paths.get(UPLOAD_FILE_PATH + dirName));
     }
 
     /**
      * 创建目录
      */
-    public void createDir(String s) {
-        try {
-            Files.createDirectory(Paths.get(UPLOAD_FILE_PATH + s));
-        } catch (IOException e) {
-            e.printStackTrace();
+    public void createDir(String s) throws IOException {
+        Files.createDirectory(Paths.get(UPLOAD_FILE_PATH + s));
+    }
+
+    /**
+     * 获取路径下所有文件名
+     * @return 文件名数组
+     */
+    public String[] getFileNames(String dirName) throws IOException {
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(dirName))) {
+            return Files.list(Paths.get(UPLOAD_FILE_PATH + dirName)).toArray(String[]::new);
         }
     }
 

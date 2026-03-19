@@ -2,6 +2,7 @@ package com.yachiyo.service.Impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.yachiyo.Config.FastMethodConfig;
+import com.yachiyo.Config.IOFileConfig;
 import com.yachiyo.Config.SecuritySafeToolConfig;
 import com.yachiyo.Utils.JwtUtils;
 import com.yachiyo.Utils.MailUtils;
@@ -13,13 +14,12 @@ import com.yachiyo.mapper.UserDetailMapper;
 import com.yachiyo.mapper.UserMapper;
 import com.yachiyo.result.Result;
 import com.yachiyo.service.AuthService;
-import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -45,6 +45,9 @@ public class AuthServiceImpl implements AuthService {
 
     @Autowired
     private MailUtils mailUtils;
+
+    @Autowired
+    private IOFileConfig ioFileConfig;
 
     @Override
     public Result<String> Login(LoginRequest loginRequest) {
@@ -112,8 +115,11 @@ public class AuthServiceImpl implements AuthService {
         return redisCode != null && redisCode.equals(code);
     }
 
-    private String userEntrySystem(User user) {
-        int userId = user.getId();
+    private String userEntrySystem(User user) throws IOException {
+        int userId = user.getId();        //检查用户文件夹是否存在
+        if (ioFileConfig.checkDirExist(String.valueOf(userId))) {
+            ioFileConfig.createDir(String.valueOf(userId));
+        }
         String token = jwtUtils.generateToken((long) userId, user.getName(), securitySafeToolConfig.getUnique(userId));
         boolean isBirthday = fastMethodConfig.getBirthday(user);
         HashOperations<String, String, String> hash = redisTemplate.opsForHash();

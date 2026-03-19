@@ -1,9 +1,12 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 
+// 全局模型加载状态
+const globalModelLoaded = ref(false);
+
 export function useModelLoading() {
-  const isLoading = ref(true);
-  const loadProgress = ref(0);
-  const loadStatus = ref('正在与八千代建立连结...');
+  const isLoading = ref(!globalModelLoaded.value);
+  const loadProgress = ref(globalModelLoaded.value ? 100 : 0);
+  const loadStatus = ref(globalModelLoaded.value ? '资源加载完成' : '正在与八千代建立连结...');
   const totalTextureSize = ref(0);
 
   const printLog = (message) => {
@@ -56,6 +59,14 @@ export function useModelLoading() {
   };
 
   onMounted(async () => {
+    // 如果模型已经加载完成，直接返回
+    if (globalModelLoaded.value) {
+      isLoading.value = false;
+      loadProgress.value = 100;
+      loadStatus.value = '资源加载完成';
+      return;
+    }
+
     try {
       // 加载并检查纹理图片
       loadStatus.value = '正在加载纹理资源...';
@@ -70,6 +81,7 @@ export function useModelLoading() {
     } finally {
       // 加载完成，隐藏加载提示
       isLoading.value = false;
+      globalModelLoaded.value = true;
     }
   });
 

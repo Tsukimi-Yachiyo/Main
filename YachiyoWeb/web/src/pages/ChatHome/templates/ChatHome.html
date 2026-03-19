@@ -37,9 +37,22 @@
       <div class="conversation-list" ref="conversationListRef">
         <transition-group name="conversation">
           <div v-for="conv in conversations" :key="conv.id" :class="['conversation-item', { active: conv.id === currentConversationId }]"
-            @click="selectConversation(conv)" :disabled="isModelLoading">
-            <span class="conversation-icon">💬</span>
-            <span class="conversation-name">{{ conv.title || '对话 ' + conv.id }}</span>
+            @click="selectConversation(conv)" :disabled="isModelLoading"
+            @mouseenter="handleMouseEnter(conv.id)" @mouseleave="handleMouseLeave"
+            @touchstart="onTouchStart($event, () => handleLongPress(conv.id))" @touchend="onTouchEnd">
+            <span class="conversation-name" v-if="editModeConversationId !== conv.id">{{ conv.title || '对话 ' + conv.id }}</span>
+            <div v-else class="edit-title-input-wrapper">
+              <input v-model="editTitle" @keyup.enter="saveEditTitle(conv.id)" @blur="saveEditTitle(conv.id)" 
+                @keyup.esc="cancelEditTitle" class="edit-title-input" autofocus />
+              <div class="mobile-buttons">
+                <button @click="saveEditTitle(conv.id)" class="edit-save-btn">保存</button>
+                <button @click="cancelEditTitle" class="edit-cancel-btn">取消</button>
+              </div>
+            </div>
+            <div v-if="(hoveredConversationId === conv.id || longPressedConversationId === conv.id) && editModeConversationId !== conv.id" class="conversation-actions">
+              <button @click.stop="startEditTitle(conv)" class="action-btn edit-btn" title="编辑标题">✏️</button>
+              <button @click="handleDeleteConversation(conv.id, $event)" class="action-btn delete-btn" title="删除会话">🗑️</button>
+            </div>
           </div>
         </transition-group>
         <div v-if="conversations.length === 0" class="empty-conversations">

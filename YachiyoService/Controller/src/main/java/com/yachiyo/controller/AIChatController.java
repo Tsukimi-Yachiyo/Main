@@ -1,5 +1,6 @@
 package com.yachiyo.controller;
 
+import com.yachiyo.dto.ChangeConversationTitleRequest;
 import com.yachiyo.dto.ChatRequest;
 import com.yachiyo.dto.SpeakRequest;
 import com.yachiyo.dto.TTSRequest;
@@ -54,6 +55,16 @@ public class AIChatController {
     @PostMapping("/create")
     public Result<String> Create(){
         return chatService.Create();
+    }
+
+    /**
+     * 修改会话标题
+     * @param changeConversationTitleRequest 修改会话标题请求
+     * @return 修改结果
+     */
+    @PostMapping("/title")
+    public Result<Boolean> ChangeConversationTitle(@RequestBody @Valid ChangeConversationTitleRequest changeConversationTitleRequest){
+        return chatService.ChangeConversationTitle(changeConversationTitleRequest);
     }
 
     /**

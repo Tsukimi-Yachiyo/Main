@@ -9,3 +9,4 @@ export { useLogin } from './useLogin.js';
 export { useUserSettings } from './useUserSettings.js';
 export { useUserProfilePopover } from './useUserProfilePopover.js';
 export { useLive2D } from './useLive2D.js';
+export { useModelLoading } from './useModelLoading.js';

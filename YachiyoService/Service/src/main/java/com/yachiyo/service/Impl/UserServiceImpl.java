@@ -63,10 +63,6 @@ public class UserServiceImpl implements UserService {
     public Result<Boolean> updateUserAvatar(MultipartFile userAvatar) {
         // 从安全上下文获取当前用户id
         int userId = ((User) Objects.requireNonNull(Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getPrincipal())).getId();
-        //检查用户文件夹是否存在
-        if (!ioFileConfig.checkDirExist(String.valueOf(userId))) {
-            ioFileConfig.createDir(String.valueOf(userId));
-        }
         if (!ioFileConfig.uploadFile(userId + "/avatar.jpg", userAvatar)) {
             return Result.error("500", "上传用户头像失败");
         }

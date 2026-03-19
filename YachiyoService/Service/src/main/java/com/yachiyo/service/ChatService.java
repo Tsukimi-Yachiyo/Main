@@ -1,5 +1,6 @@
 package com.yachiyo.service;
 
+import com.yachiyo.dto.ChangeConversationTitleRequest;
 import com.yachiyo.dto.ChatRequest;
 import com.yachiyo.result.Result;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -30,4 +31,12 @@ public interface ChatService {
      */
      @Schema(description = "流式聊天")
     public SseEmitter StreamChat(ChatRequest chatRequest);
+
+     /**
+     * 修改会话标题
+     * @param changeConversationTitleRequest 修改会话标题请求
+     * @return 修改结果
+     */
+    @Schema(description = "修改会话标题")
+    public Result<Boolean> ChangeConversationTitle(ChangeConversationTitleRequest changeConversationTitleRequest);
 }

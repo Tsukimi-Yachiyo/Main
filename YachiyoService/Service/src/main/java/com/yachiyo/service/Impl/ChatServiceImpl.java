@@ -2,6 +2,7 @@ package com.yachiyo.service.Impl;
 
 import com.yachiyo.Config.ChatMemoryHistoryToolConfig;
 import com.yachiyo.Config.FastMethodConfig;
+import com.yachiyo.dto.ChangeConversationTitleRequest;
 import com.yachiyo.dto.ChatRequest;
 import com.yachiyo.entity.User;
 import com.yachiyo.mapper.ConversationMapper;
@@ -149,5 +150,17 @@ public class ChatServiceImpl implements ChatService {
                 }
         });
         return emitter;
+    }
+
+    @Override
+    public Result<Boolean> ChangeConversationTitle(ChangeConversationTitleRequest changeConversationTitleRequest) {
+        try {
+            int conversationId = Integer.parseInt(String.valueOf(changeConversationTitleRequest.getConversationId()));
+            chatMemoryHistoryToolConfig.changeTitle(conversationId, changeConversationTitleRequest.getTitle());
+            return Result.success(true);
+        } catch (Exception e) {
+            log.error("修改会话标题失败", e);
+            return Result.error("500", "修改会话标题失败");
+        }
     }
 }

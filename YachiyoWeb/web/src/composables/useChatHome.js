@@ -6,6 +6,7 @@ import { useMessages } from './useMessages.js';
 import { useVoice } from './useVoice.js';
 import { useSidebar } from './useSidebar.js';
 import { useUserProfile } from './useUserProfile.js';
+import { useModelLoading } from './useModelLoading.js';
 
 export function useChatHome() {
   const router = useRouter();
@@ -16,7 +17,9 @@ export function useChatHome() {
     isCreating,
     loadConversations,
     createNewConversation,
-    selectConversation: selectConv
+    selectConversation: selectConv,
+    updateConversationTitle,
+    deleteConversation
   } = useConversations();
   const {
     messages,
@@ -39,6 +42,7 @@ export function useChatHome() {
     onTouchEnd
   } = useSidebar();
   const { username, userAvatar, loadUserDetail } = useUserProfile();
+  const { isLoading: isModelLoading, loadProgress, loadStatus } = useModelLoading();
 
   onMounted(() => {
     if (!token.value) {
@@ -89,8 +93,13 @@ export function useChatHome() {
     onTouchEnd,
     selectConversation,
     createNewConversation: handleCreateConversation,
+    updateConversationTitle,
+    deleteConversation,
     sendMessage,
     playVoice,
-    logout
+    logout,
+    isModelLoading,
+    loadProgress,
+    loadStatus
   };
 }

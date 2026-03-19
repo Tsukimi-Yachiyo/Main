@@ -191,7 +191,7 @@
 }
 
 .conversation-icon {
-  font-size: 18px;
+  display: none;
 }
 
 .conversation-name {
@@ -731,5 +731,112 @@
 
   .chat-main {
     width: 100%;
+  }
+}
+
+/* 会话操作按钮样式 */
+.conversation-actions {
+  display: flex;
+  gap: 8px;
+  margin-left: 10px;
+}
+
+.action-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.action-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* 编辑标题样式 */
+.edit-title-input-wrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.mobile-buttons {
+  display: none;
+}
+
+.edit-title-input {
+  flex: 1;
+  padding: 6px 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  font-size: 14px;
+}
+
+.edit-title-input:focus {
+  outline: none;
+  border-color: #2196F3;
+}
+
+.edit-save-btn, .edit-cancel-btn {
+  padding: 4px 8px;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.edit-save-btn {
+  background-color: #2196F3;
+  color: white;
+}
+
+.edit-cancel-btn {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.edit-save-btn:hover {
+  background-color: #1976D2;
+}
+
+.edit-cancel-btn:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+  .conversation-actions {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    padding: 8px;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+  
+  .mobile-buttons {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+  }
+  
+  .edit-title-input-wrapper {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  
+  .edit-save-btn, .edit-cancel-btn {
+    flex: 1;
+    text-align: center;
   }
 }

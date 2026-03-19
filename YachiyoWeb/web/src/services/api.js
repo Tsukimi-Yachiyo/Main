@@ -187,6 +187,17 @@ export const chatAPI = {
     return apiClient.post('/api/v2/ai/speak', { text: text }, {
 
     });
+  },
+
+  updateConversationTitle(conversationId, title) {
+    return apiClient.post('/api/v2/ai/title', {
+      conversationId: conversationId,
+      title: title
+    });
+  },
+
+  deleteConversation(conversationId) {
+    return apiClient.get(`/api/v2/clear/${conversationId}`);
   }
 };
 

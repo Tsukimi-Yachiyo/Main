@@ -43,6 +43,41 @@ export function useConversations() {
     currentConversationId.value = id;
   };
 
+  const updateConversationTitle = async (conversationId, title) => {
+    try {
+      const result = await chatAPI.updateConversationTitle(conversationId, title);
+      if (result.success) {
+        const conversation = conversations.value.find(conv => conv.id === conversationId);
+        if (conversation) {
+          conversation.title = title;
+        }
+        return true;
+      }
+    } catch (error) {
+      console.error('更新会话标题失败:', error);
+    }
+    return false;
+  };
+
+  const deleteConversation = async (conversationId) => {
+    try {
+      const result = await chatAPI.deleteConversation(conversationId);
+      if (result.success) {
+        const index = conversations.value.findIndex(conv => conv.id === conversationId);
+        if (index !== -1) {
+          conversations.value.splice(index, 1);
+          if (currentConversationId.value === conversationId) {
+            currentConversationId.value = conversations.value.length > 0 ? conversations.value[0].id : null;
+          }
+        }
+        return true;
+      }
+    } catch (error) {
+      console.error('删除会话失败:', error);
+    }
+    return false;
+  };
+
   return {
     conversations,
     currentConversationId,
@@ -50,6 +85,8 @@ export function useConversations() {
     isLoading,
     loadConversations,
     createNewConversation,
-    selectConversation
+    selectConversation,
+    updateConversationTitle,
+    deleteConversation
   };
 }

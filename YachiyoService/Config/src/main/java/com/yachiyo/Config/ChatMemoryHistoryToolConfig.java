@@ -95,10 +95,20 @@ public class ChatMemoryHistoryToolConfig {
      * @param id 会话id
      */
     public void clearHistory(int id) throws Exception {
-        if (messageMapper.delete(new QueryWrapper<Message>().eq("conversation_id", id)) > 0) {
-            log.info("清空会话记忆成功");
+        if (conversationMapper.selectById(id) == null) {
+            throw new Exception("会话不存在");
         }else {
-            throw new Exception("清空会话记忆失败");
+            if (conversationMapper.deleteById(id) > 0) {
+                log.info("删除会话成功");
+            }else {
+                throw new Exception("删除会话失败");
+            }
+
+        }
+        if (messageMapper.delete(new QueryWrapper<Message>().eq("conversation_id", id)) > 0) {
+            log.info("删除会话记忆成功");
+        }else {
+            throw new Exception("删除会话记忆失败");
         }
     }
 
@@ -127,6 +137,15 @@ public class ChatMemoryHistoryToolConfig {
     @Bean
     public ChatMemoryHistoryToolConfig getChatMemoryHistoryToolConfig(){
         return new ChatMemoryHistoryToolConfig();
+    }
+
+    public void changeTitle(int conversationId, String title) throws Exception {
+        Conversation conversation = conversationMapper.selectById(conversationId);
+        if (conversation == null) {
+            throw new Exception("会话不存在");
+        }
+        conversation.setTitle(title);
+        conversationMapper.updateById(conversation);
     }
 }
 

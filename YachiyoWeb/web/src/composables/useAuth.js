@@ -1,10 +1,12 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { useUserProfile } from './useUserProfile.js';
 
 export function useAuth() {
   const router = useRouter();
   const token = ref(localStorage.getItem('token'));
   const username = ref(localStorage.getItem('username') || '用户');
+  const { clearCache } = useUserProfile();
 
   const isAuthenticated = () => !!token.value;
 
@@ -20,6 +22,7 @@ export function useAuth() {
     localStorage.removeItem('username');
     token.value = null;
     username.value = '';
+    clearCache();
     router.push('/');
   };
 

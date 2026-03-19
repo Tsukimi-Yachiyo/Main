@@ -45,10 +45,10 @@ public class HistoryController {
     }
 
     /**
-     * 清空对话记忆
+     * 删除对话记忆
      *
      * @param id 会话id
-     * @return 清空结果
+     * @return 删除结果
      */
     @GetMapping("/clear/{id}")
     public Result<Boolean> clearHistory(@PathVariable String id) throws Exception {
