@@ -1,0 +1,59 @@
+name: 同步多个子仓库到主仓库
+
+on:
+  schedule:
+    - cron: "0 0 * * *"  # 每天 UTC 0点（北京时间 8点）
+  workflow_dispatch:     # 允许手动触发
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 拉取主仓库
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          token: ${{ secrets.PAT }}
+
+      - name: 同步多个子仓库
+        env:
+          PAT: ${{ secrets.PAT }}
+        run: |
+          ###########################################################################
+          #  在这里配置子仓库列表：【目录名】=【子仓库地址】
+          ###########################################################################
+          repos=(
+            "repo-a=https://github.com/Tsukimi-Yachiyo/YachiyoWeb.git"
+            "repo-b=https://github.com/Tsukimi-Yachiyo/YachiyoService.git"
+            "repo-c=https://github.com/Tsukimi-Yachiyo/YachiyoClient.git"
+          )
+
+          # 循环同步
+          for repo in "${repos[@]}"; do
+            # 拆分目录名和仓库地址
+            dir="${repo%%=*}"
+            url="${repo#*=}"
+
+            echo "========================================"
+            echo "同步仓库：$url -> 目录：$dir"
+            echo "========================================"
+
+            # 克隆最新代码（只保留最新内容，不含历史）
+            git clone --depth 1 "$url" "$dir-tmp"
+
+            # 删除旧内容，替换新内容
+            rm -rf "$dir"
+            mv "$dir-tmp" "$dir"
+
+            # 删除.git 避免冲突
+            rm -rf "$dir/.git"
+          done
+
+          ###########################################################################
+          # 提交更新到主仓库
+          ###########################################################################
+          git config --global user.name "GitHub Action"
+          git config --global user.email "action@github.com"
+          git add .
+          git commit -m "自动同步子仓库 $(date +'%Y-%m-%d %H:%M:%S')" || echo "无更新"
+          git push
