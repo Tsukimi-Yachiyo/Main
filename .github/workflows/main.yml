@@ -11,12 +11,21 @@ env:
 jobs:
   sync:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: 拉取主仓库
         uses: actions/checkout@v4
         with:
-          fetch-depth: 1
+          fetch-depth: 0
           token: ${{ secrets.PAT }}
+
+      - name: 重置并清理
+        run: |
+          git config --global --add safe.directory '*'
+          git fetch origin
+          git reset --hard origin/${GITHUB_REF#refs/heads/}
+          git clean -fd
 
       - name: 同步多个子仓库
         env:
