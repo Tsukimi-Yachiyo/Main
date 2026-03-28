@@ -1,10 +1,14 @@
 package com.yachiyo.service.Impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.yachiyo.Config.SecuritySafeToolConfig;
 import com.yachiyo.Utils.JwtUtils;
+import com.yachiyo.entity.Posting;
 import com.yachiyo.entity.User;
+import com.yachiyo.mapper.PostingMapper;
 import com.yachiyo.result.Result;
 import com.yachiyo.service.AdminService;
+import com.yachiyo.service.PostingService;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
@@ -20,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.List;
 
 import static com.baomidou.mybatisplus.extension.spi.SpringCompatibleSet.applicationContext;
 
@@ -32,12 +37,19 @@ public class AdminServiceImpl implements AdminService {
     @Autowired
     private SecuritySafeToolConfig securitySafeToolConfig;
 
+    @Value("${admin.password}")
+    private String adminPassword;
+
     @Override
     public Result<String> Login(User user) {
-        if (user.getName().equals("admin")) {
-            if (user.getPassword().equals(securitySafeToolConfig.md5("123456"))) {
-                return Result.success(jwtUtils.generateToken(0L, "admin", String.valueOf(SecuritySafeToolConfig.getStatusSafeCode())));
+        try {
+            if (user.getName().equals("admin")) {
+                if (user.getPassword().equals(adminPassword)) {
+                    return Result.success(jwtUtils.generateToken(0L, "admin", securitySafeToolConfig.getUnique(0L)));
+                }
             }
+        } catch (Exception e) {
+            return Result.error("500", "登录失败", e.getMessage());
         }
         return Result.error("400", "登录失败", "登录失败");
     }
@@ -58,6 +70,9 @@ public class AdminServiceImpl implements AdminService {
 
     @Autowired
     private Advisor retrievalAugmentationAdvisor;
+
+    @Autowired
+    private PostingMapper postingMapper;
 
     @Override
     public Result<Void> ChangeApiKey(String apiKey, String model) {
@@ -118,6 +133,53 @@ public class AdminServiceImpl implements AdminService {
 
         } catch (Exception e) {
             return Result.error("400", "执行命令失败", e.getMessage());
+        }
+    }
+
+    @Override
+    public Result<Boolean> ApprovePosting(Long postingId) {
+        try {
+            Posting posting = new Posting();
+            posting.setId(postingId);
+            posting.setIsApproved(true);
+            postingMapper.updateById(posting);
+            return Result.success(true);
+        } catch (Exception e) {
+            return Result.error("400", "审核帖子失败", e.getMessage());
+        }
+    }
+
+    @Override
+    public Result<Boolean> RejectPosting(Long postingId) {
+        try {
+            Posting posting = new Posting();
+            posting.setId(postingId);
+            posting.setIsApproved(false);
+            postingMapper.updateById(posting);
+            return Result.success(true);
+        } catch (Exception e) {
+            return Result.error("400", "拒绝帖子失败", e.getMessage());
+        }
+    }
+
+    @Override
+    public Result<List<Posting>> GetAllPosting() {
+        try {
+            List<Posting> postings = postingMapper.selectList(null);
+            return Result.success(postings);
+        } catch (Exception e) {
+            return Result.error("400", "获取所有帖子失败", e.getMessage());
+        }
+    }
+
+    @Override
+    public Result<List<Posting>> GetUnapprovedPosting() {
+        try {
+            List<Posting> postings = postingMapper.selectList(new LambdaQueryWrapper<Posting>()
+                    .eq(Posting::getIsApproved, false));
+            return Result.success(postings);
+        } catch (Exception e) {
+            return Result.error("400", "获取未审核帖子失败", e.getMessage());
         }
     }
 }

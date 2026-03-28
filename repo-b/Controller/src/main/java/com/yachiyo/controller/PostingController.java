@@ -132,7 +132,7 @@ public class PostingController {
      * 获取自己的帖子
      */
     @PostMapping("/getMyPosting")
-    public Result<Long> getMyPosting() {
+    public Result<List<Long>> getMyPosting() {
         return postingService.getMyPosting();
     }
 }

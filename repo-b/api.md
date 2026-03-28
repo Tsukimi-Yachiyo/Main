@@ -928,13 +928,13 @@ Authorization: Bearer <your_jwt_token>
 
 **认证**: ✅ 需要
 
-**响应体** (`Result<Long>`):
+**响应体** (`Result<List<Long>>`):
 
 ```json
 {
   "code": "200",
   "message": "success",
-  "data": 123,
+  "data": [123, 456],
   "detail": null
 }
 ```

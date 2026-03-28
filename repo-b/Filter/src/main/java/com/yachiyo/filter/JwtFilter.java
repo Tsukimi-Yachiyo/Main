@@ -48,7 +48,9 @@ public class JwtFilter extends OncePerRequestFilter {
                 String userId = jwtUtils.getUserIdFromToken(jwt);
                 // 验证通过，继续处理请求
                 String username = jwtUtils.getNameFromToken(jwt);
-                User user = new User(Long.parseLong(userId), username, null, null, null);
+                User user = new User();
+                user.setId(Long.parseLong(userId));
+                user.setName(username);
                 List<GrantedAuthority> authorities = new ArrayList<>();
 
                 if (!securitySafeToolConfig.checkUnique(Integer.parseInt(userId), jwtUtils.getUniqueCodeFromToken(jwt))) {
@@ -58,7 +60,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
                 if (user.getId() == 0L) {
                     authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
-                }else if (user.getRole() == null) {
+                }else{
                     authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
                 }
                 UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(user, null, authorities);

@@ -1,5 +1,6 @@
 package com.yachiyo.controller;
 
+import com.yachiyo.entity.Posting;
 import com.yachiyo.entity.User;
 import com.yachiyo.result.Result;
 import com.yachiyo.service.AdminService;
@@ -52,5 +53,25 @@ public class AdminController {
         user.setName(username);
         user.setPassword(password);
         return adminService.Login(user);
+    }
+
+    @PostMapping("/approve-posting")
+    public Result<Boolean> approvePosting(@RequestParam("postingId") Long postingId) {
+        return adminService.ApprovePosting(postingId);
+    }
+
+    @PostMapping("/reject-posting")
+    public Result<Boolean> rejectPosting(@RequestParam("postingId") Long postingId) {
+        return adminService.RejectPosting(postingId);
+    }
+
+    @PostMapping("/get-all-posting")
+    public Result<List<Posting>> getAllPosting() {
+        return adminService.GetAllPosting();
+    }
+
+    @PostMapping("/get-unapproved-posting")
+    public Result<List<Posting>> getUnapprovedPosting() {
+        return adminService.GetUnapprovedPosting();
     }
 }

@@ -51,6 +51,7 @@ public class PostingServiceImpl implements PostingService {
             queryWrapper.like(Posting::getContent, "%" + keyword + "%");
             queryWrapper.orderByAsc(Posting::getId);
             queryWrapper.last("LIMIT " + pageSize + " OFFSET " + (pageNum - 1) * pageSize);
+            queryWrapper.eq(Posting::getIsApproved, true);
             List<Long> postingIds = postingMapper.selectList(queryWrapper).stream().map(Posting::getId).collect(Collectors.toList());
             return Result.success(postingIds);
         } catch (Exception e) {
@@ -174,13 +175,13 @@ public class PostingServiceImpl implements PostingService {
             if (ioFileUtils.checkDirExist(UserId + "/" + posting.getTitle())) {
                 ioFileUtils.createDir(UserId + "/" + posting.getTitle());
             }
-            if (!ioFileUtils.uploadFile(UserId + "/" + posting.getTitle() + "/" + "cover.jpg", posting.getCoverImage())) {
+            if (posting.getCoverImage() != null && !ioFileUtils.uploadFile(UserId + "/" + posting.getTitle() + "/" + "cover.jpg", posting.getCoverImage())) {
                 return Result.error("封面图片上传失败");
             }
             if (posting.getFiles() != null && !posting.getFiles().isEmpty()) {
                 for (int i = 0; i < posting.getFiles().size(); i++) {
                     MultipartFile file = posting.getFiles().get(i);
-                    if (ioFileUtils.uploadFile(UserId + "/" + posting.getTitle() + "/" + i + "_" + file.getOriginalFilename(), file)) {
+                    if (!ioFileUtils.uploadFile(UserId + "/" + posting.getTitle() + "/" + i + "_" + file.getOriginalFilename(), file)) {
                         return Result.error("文件上传失败");
                     }
                 }
@@ -298,10 +299,14 @@ public class PostingServiceImpl implements PostingService {
     }
 
     @Override
-    public Result<Long> getMyPosting() {
+    public Result<List<Long>> getMyPosting() {
         try {
             Long UserId = ((User) Objects.requireNonNull(Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getPrincipal())).getId();
-            return Result.success(postingMapper.selectCount(new QueryWrapper<Posting>().eq("user_id", UserId)));
+            List<Long> postingIds = postingMapper.selectList(new QueryWrapper<Posting>().eq("user_id", UserId).orderByDesc("id"))
+                    .stream()
+                    .map(Posting::getId)
+                    .toList();
+            return Result.success(postingIds);
         } catch (Exception e) {
             return Result.error("500","获取自己的帖子失败：",e.getMessage());
         }

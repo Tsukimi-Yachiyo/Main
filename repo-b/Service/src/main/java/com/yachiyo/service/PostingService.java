@@ -97,5 +97,5 @@ public interface PostingService {
     /**
      * 获取自己的帖子
      */
-    Result<Long> getMyPosting();
+    Result<List<Long>> getMyPosting();
 }

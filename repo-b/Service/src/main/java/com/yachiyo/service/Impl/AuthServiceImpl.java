@@ -126,4 +126,6 @@ public class AuthServiceImpl implements AuthService {
         hash.put("user:" + userId, "birthday", String.valueOf(isBirthday));
         return token;
     }
+
+
 }
