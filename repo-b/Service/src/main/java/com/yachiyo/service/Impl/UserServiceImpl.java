@@ -2,12 +2,18 @@ package com.yachiyo.service.Impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.yachiyo.Utils.FileUrlUtil;
+import com.yachiyo.dto.CoinChangeRequest;
 import com.yachiyo.dto.PosterDetailResponse;
 import com.yachiyo.dto.UserDetailResponse;
+import com.yachiyo.entity.CoinLog;
 import com.yachiyo.entity.User;
 import com.yachiyo.entity.UserDetail;
+import com.yachiyo.enumeration.TradeType;
+import com.yachiyo.mapper.CoinLogMapper;
 import com.yachiyo.mapper.UserDetailMapper;
+import com.yachiyo.mapper.UserMapper;
 import com.yachiyo.result.Result;
+import com.yachiyo.service.CoinChangeService;
 import com.yachiyo.service.UserService;
 import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import com.yachiyo.Utils.IOFileUtils;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Service
@@ -29,6 +36,12 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private IOFileUtils ioFileUtils;
+
+    @Autowired
+    private CoinLogMapper coinLogMapper;
+
+    @Autowired
+    private CoinChangeService coinChangeService;
 
     @Override
     public Result<UserDetailResponse> getUserDetail() {
@@ -100,6 +113,32 @@ public class UserServiceImpl implements UserService {
         } catch (Exception e) {
                 return Result.error("500", "获取用户详情失败");
         }
+    }
+
+    @Override
+    public Result<Boolean> sign() {
+        // 从安全上下文获取当前用户id
+        Long userId = ((User) Objects.requireNonNull(Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getPrincipal())).getId();
+        // 从数据库中获取用户详情
+        UserDetail userDetail = userDetailMapper.selectById(userId);
+        if (userDetail == null) {
+            return Result.error("404", "用户不存在"+userId);
+        }
+        QueryWrapper<CoinLog> queryWrapper = new QueryWrapper<CoinLog>().eq("user_id", userId).eq("business_type", TradeType.CHECKIN);
+        queryWrapper.orderByDesc("create_time");
+        // 从交易记录中查询用户是否已签到
+        CoinLog coinLog = coinLogMapper.selectOne(queryWrapper);
+        if (coinLog != null) {
+            if (LocalDateTime.now().isAfter(coinLog.getCreateTime().plusDays(1))) {
+                return Result.error("400", "用户已签到");
+            }
+        }
+        // 签到成功
+        CoinChangeRequest coinChangeRequest = new CoinChangeRequest();
+        coinChangeRequest.setToUserId(userId);
+        coinChangeRequest.setType(TradeType.CHECKIN);
+        coinChangeRequest.setAmount(8.0);
+        return coinChangeService.changeCoin(coinChangeRequest);
     }
 
     /**

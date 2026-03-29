@@ -39,4 +39,10 @@ public interface UserService {
      * @return 用户详情
      */
      Result<PosterDetailResponse> getPosterDetail(Long userId);
+
+     /**
+      * 签到接口
+      * @return 是否签到成功
+      */
+     Result<Boolean> sign();
 }

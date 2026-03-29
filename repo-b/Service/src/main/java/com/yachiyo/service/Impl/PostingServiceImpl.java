@@ -4,8 +4,13 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.yachiyo.Utils.FileUrlUtil;
 import com.yachiyo.dto.GetPostingResponse;
+import com.yachiyo.dto.InteractionRequest;
 import com.yachiyo.dto.PostEncapsulateResponse;
+import com.yachiyo.dto.PostStatsResponse;
+import com.yachiyo.dto.SelfPostResponse;
 import com.yachiyo.dto.UploadPostingRequest;
+import com.yachiyo.enumeration.InteractionAction;
+import com.yachiyo.enumeration.InteractionType;
 import com.yachiyo.entity.*;
 import com.yachiyo.mapper.*;
 import com.yachiyo.result.Result;
@@ -210,6 +215,9 @@ public class PostingServiceImpl implements PostingService {
             if (postingEntity == null) {
                 return Result.error("帖子不存在");
             }
+            if (!postingEntity.getIsApproved()) {
+                return Result.error("帖子未审核");
+            }
             GetPostingResponse getPostingResponse = new GetPostingResponse();
             getPostingResponse.setContent(postingEntity.getContent());
             Long userId = postingEntity.getUserId();
@@ -235,6 +243,12 @@ public class PostingServiceImpl implements PostingService {
             Posting postingEntity = postingMapper.selectById(postingId);
             if (postingEntity == null) {
                 return Result.error("帖子不存在");
+            }
+            // 获取当前登录用户
+            Long currentUserId = ((User) Objects.requireNonNull(Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getPrincipal())).getId();
+            // 如果不是帖子作者且帖子未审核，则拒绝访问
+            if (!postingEntity.getIsApproved() && !postingEntity.getUserId().equals(currentUserId)) {
+                return Result.error("帖子未审核");
             }
             PostEncapsulateResponse postEncapsulateResponse = new PostEncapsulateResponse();
             postEncapsulateResponse.setTitle(postingEntity.getTitle());
@@ -299,14 +313,136 @@ public class PostingServiceImpl implements PostingService {
     }
 
     @Override
-    public Result<List<Long>> getMyPosting() {
+    public Result<Boolean> handleInteraction(InteractionRequest request) {
+        try {
+            Long userId = ((User) Objects.requireNonNull(Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getPrincipal())).getId();
+            Long postingId = request.getPostingId();
+            InteractionType type = request.getType();
+            InteractionAction action = request.getAction();
+
+            // 获取帖子详情
+            PostDetail postDetail = postDetailMapper.selectById(postingId);
+            if (postDetail == null) {
+                return Result.error("帖子不存在");
+            }
+
+            boolean isLike = type == InteractionType.LIKE;
+            // 检查当前互动状态
+            boolean alreadyInteracted;
+            if (isLike) {
+                alreadyInteracted = !linkLikeMapper.selectByMap(Map.of("user_id", userId, "posting_id", postingId)).isEmpty();
+            } else {
+                alreadyInteracted = !linkCollectionMapper.selectByMap(Map.of("user_id", userId, "posting_id", postingId)).isEmpty();
+            }
+
+            // 根据action决定操作
+            boolean shouldAdd;
+            switch (action) {
+                case ADD:
+                    shouldAdd = true;
+                    break;
+                case REMOVE:
+                    shouldAdd = false;
+                    break;
+                case TOGGLE:
+                    shouldAdd = !alreadyInteracted;
+                    break;
+                default:
+                    return Result.error("无效的操作类型");
+            }
+
+            // 执行操作
+            if (shouldAdd && !alreadyInteracted) {
+                // 添加互动
+                if (isLike) {
+                    LinkLike linkLike = new LinkLike();
+                    linkLike.setUserId(userId);
+                    linkLike.setPostingId(postingId);
+                    linkLikeMapper.insert(linkLike);
+                    postDetail.setLove(postDetail.getLove() + 1);
+                } else {
+                    LinkCollection linkCollection = new LinkCollection();
+                    linkCollection.setUserId(userId);
+                    linkCollection.setPostingId(postingId);
+                    linkCollectionMapper.insert(linkCollection);
+                    postDetail.setCollection(postDetail.getCollection() + 1);
+                }
+                postDetailMapper.updateById(postDetail);
+                return Result.success(true);
+            } else if (!shouldAdd && alreadyInteracted) {
+                // 移除互动
+                if (isLike) {
+                    linkLikeMapper.deleteByMap(Map.of("user_id", userId, "posting_id", postingId));
+                    postDetail.setLove(postDetail.getLove() - 1);
+                } else {
+                    linkCollectionMapper.deleteByMap(Map.of("user_id", userId, "posting_id", postingId));
+                    postDetail.setCollection(postDetail.getCollection() - 1);
+                }
+                postDetailMapper.updateById(postDetail);
+                return Result.success(true);
+            } else {
+                // 状态未改变，返回当前状态
+                return Result.success(true);
+            }
+        } catch (Exception e) {
+            return Result.error("500", "处理互动失败", e.getMessage());
+        }
+    }
+
+    @Override
+    public Result<PostStatsResponse> getPostingStats(Long postingId) {
+        try {
+            Long userId = null;
+            try {
+                userId = ((User) Objects.requireNonNull(Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getPrincipal())).getId();
+            } catch (Exception e) {
+                // 用户未登录，userId保持为null
+            }
+
+            PostDetail postDetail = postDetailMapper.selectById(postingId);
+            if (postDetail == null) {
+                return Result.error("帖子不存在");
+            }
+
+            PostStatsResponse stats = new PostStatsResponse();
+            stats.setLikeCount(postDetail.getLove());
+            stats.setCollectionCount(postDetail.getCollection());
+            stats.setReadingCount(postDetail.getReading());
+            stats.setCoinCount(postDetail.getCoin());
+
+            // 如果用户已登录，检查点赞和收藏状态
+            if (userId != null) {
+                boolean liked = !linkLikeMapper.selectByMap(Map.of("user_id", userId, "posting_id", postingId)).isEmpty();
+                boolean collected = !linkCollectionMapper.selectByMap(Map.of("user_id", userId, "posting_id", postingId)).isEmpty();
+                stats.setLiked(liked);
+                stats.setCollected(collected);
+            } else {
+                stats.setLiked(false);
+                stats.setCollected(false);
+            }
+
+            return Result.success(stats);
+        } catch (Exception e) {
+            return Result.error("500", "获取帖子统计失败", e.getMessage());
+        }
+    }
+
+    @Override
+    public Result<List<SelfPostResponse>> getMyPosting() {
         try {
             Long UserId = ((User) Objects.requireNonNull(Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getPrincipal())).getId();
             List<Long> postingIds = postingMapper.selectList(new QueryWrapper<Posting>().eq("user_id", UserId).orderByDesc("id"))
                     .stream()
                     .map(Posting::getId)
                     .toList();
-            return Result.success(postingIds);
+            List<com.yachiyo.dto.SelfPostResponse> selfPostResponses = new ArrayList<>();
+            for (Long postingId : postingIds) {
+                SelfPostResponse selfPostResponse = new SelfPostResponse();
+                selfPostResponse.setPostingId(postingId);
+                selfPostResponse.setApproved(postingMapper.selectById(postingId).getIsApproved());
+                selfPostResponses.add(selfPostResponse);
+            }
+            return Result.success(selfPostResponses);
         } catch (Exception e) {
             return Result.error("500","获取自己的帖子失败：",e.getMessage());
         }

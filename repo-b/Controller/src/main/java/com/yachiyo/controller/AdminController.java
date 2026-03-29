@@ -1,5 +1,7 @@
 package com.yachiyo.controller;
 
+import com.yachiyo.dto.PostingQueryRequest;
+import com.yachiyo.dto.ReviewRequest;
 import com.yachiyo.entity.Posting;
 import com.yachiyo.entity.User;
 import com.yachiyo.result.Result;
@@ -55,23 +57,23 @@ public class AdminController {
         return adminService.Login(user);
     }
 
-    @PostMapping("/approve-posting")
-    public Result<Boolean> approvePosting(@RequestParam("postingId") Long postingId) {
-        return adminService.ApprovePosting(postingId);
+    @PostMapping("/review")
+    public Result<Boolean> reviewPosting(@RequestBody @Valid ReviewRequest request) {
+        return adminService.reviewPosting(request);
     }
 
-    @PostMapping("/reject-posting")
-    public Result<Boolean> rejectPosting(@RequestParam("postingId") Long postingId) {
-        return adminService.RejectPosting(postingId);
+    @PostMapping("/query-postings")
+    public Result<List<Posting>> queryPostings(@RequestBody @Valid PostingQueryRequest request) {
+        return adminService.queryPostings(request);
     }
 
-    @PostMapping("/get-all-posting")
-    public Result<List<Posting>> getAllPosting() {
-        return adminService.GetAllPosting();
-    }
-
-    @PostMapping("/get-unapproved-posting")
-    public Result<List<Posting>> getUnapprovedPosting() {
-        return adminService.GetUnapprovedPosting();
+    // 为了向后兼容，保留删除接口但标记为弃用
+    @Deprecated
+    @PostMapping("/delete-posting")
+    public Result<Boolean> deletePosting(@RequestParam("postingId") Long postingId) {
+        ReviewRequest request = new ReviewRequest();
+        request.setPostingId(postingId);
+        request.setAction(com.yachiyo.enumeration.ReviewAction.DELETE);
+        return adminService.reviewPosting(request);
     }
 }

@@ -7,6 +7,7 @@ import com.yachiyo.Utils.IOFileUtils;
 import com.yachiyo.Utils.JwtUtils;
 import com.yachiyo.Utils.MailUtils;
 import com.yachiyo.dto.LoginRequest;
+import com.yachiyo.dto.MailLoginRequest;
 import com.yachiyo.dto.RegisterRequest;
 import com.yachiyo.entity.User;
 import com.yachiyo.entity.UserDetail;
@@ -17,9 +18,11 @@ import com.yachiyo.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -107,6 +110,51 @@ public class AuthServiceImpl implements AuthService {
             return Result.success(true, "验证码发送成功",null);
         } catch (Exception e) {
             return Result.error("500","验证码发送失败",e.getMessage());
+        }
+    }
+
+    @Override
+    public Result<Boolean> ChangePassword(RegisterRequest registerRequest) {
+        try{
+            if (!verifyCode(registerRequest.getEmail(), registerRequest.getCode())) {
+                return Result.error("400","验证码错误",null);
+            }
+            User user = new User();
+            user.setPassword(securitySafeToolConfig.md5(registerRequest.getPassword()));
+            userMapper.update(user, new LambdaQueryWrapper<User>().eq(User::getName, user.getName()));
+            return Result.success(true, "密码更改成功",null);
+        } catch (Exception e) {
+            return Result.error("500","密码更改失败",e.getMessage());
+        }
+    }
+
+    @Override
+    public Result<Boolean> Logout() {
+        Long userId = ((User) Objects.requireNonNull(Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getPrincipal())).getId();
+        redisTemplate.delete("user:" + userId);
+        SecurityContextHolder.clearContext();
+        return Result.success(true, "退出登录成功",null);
+    }
+
+    @Override
+    public Result<String> LoginByEmail(MailLoginRequest mailLoginRequest) {
+        try {
+            User user = new User();
+            user.setEmail(mailLoginRequest.getEmail());
+            user.setPassword(securitySafeToolConfig.md5(mailLoginRequest.getPassword()));
+            User selectUser = userMapper.selectOne(new LambdaQueryWrapper<User>().eq(User::getEmail, user.getEmail())
+                    .eq(User::getPassword, user.getPassword()));
+            if (selectUser == null) {
+                boolean IsExistUser = userMapper.selectCount(new LambdaQueryWrapper<User>().eq(User::getEmail, user.getEmail())) == 0;
+                if (IsExistUser) {
+                    return Result.error("400.1","邮箱不存在",null);
+                }
+                return Result.error("400.2","密码错误",null);
+            }
+            String token = userEntrySystem(selectUser);
+            return Result.success(token, "登录成功",null);
+        } catch (Exception e) {
+            return Result.error("500","登录失败",e.getMessage());
         }
     }
 

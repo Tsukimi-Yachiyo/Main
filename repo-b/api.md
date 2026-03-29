@@ -16,8 +16,11 @@
   - [评论模块 (Comment)](#7-评论模块-comment)
   - [用户详情模块 (User Detail)](#8-用户详情模块-user-detail)
   - [文件模块 (File)](#9-文件模块-file)
-  - [管理员模块 (Admin)](#10-管理员模块-admin)
-  - [测试模块 (Test)](#11-测试模块-test)
+  - [邮件模块 (Mail)](#10-邮件模块-mail)
+  - [金币模块 (Coin)](#11-金币模块-coin)
+  - [商品模块 (Goods)](#12-商品模块-goods)
+  - [管理员模块 (Admin)](#13-管理员模块-admin)
+  - [测试模块 (Test)](#14-测试模块-test)
 
 ---
 
@@ -697,9 +700,50 @@ Authorization: Bearer <your_jwt_token>
 
 ---
 
-#### 5.3 点赞帖子
+#### 5.3 处理帖子互动（点赞/收藏）
 
-**接口**: `POST /api/v2/posting/like`
+**接口**: `POST /api/v2/posting/interaction`
+
+**认证**: ✅ 需要
+
+**Content-Type**: `application/json`
+
+**请求体** (`InteractionRequest`):
+
+```json
+{
+  "postingId": 123,
+  "type": "LIKE",
+  "action": "TOGGLE"
+}
+```
+
+**请求参数说明**：
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| postingId | Long | 是 | 帖子 ID |
+| type | String | 是 | 互动类型：LIKE（点赞）、COLLECTION（收藏） |
+| action | String | 是 | 操作类型：ADD（添加）、REMOVE（移除）、TOGGLE（切换） |
+
+**响应体** (`Result<Boolean>`):
+
+```json
+{
+  "code": "200",
+  "message": "操作成功",
+  "data": true,
+  "detail": null
+}
+```
+
+**说明**：此接口合并了原有的 `likePosting`（点赞）、`collectionPosting`（收藏）、`cancelLikePosting`（取消点赞）、`cancelCollectionPosting`（取消收藏）接口，提供统一的互动操作管理。
+
+---
+
+#### 5.4 获取帖子统计信息
+
+**接口**: `POST /api/v2/posting/stats`
 
 **认证**: ✅ 需要
 
@@ -709,97 +753,31 @@ Authorization: Bearer <your_jwt_token>
 |------|------|------|------|
 | postingId | Long | 是 | 帖子 ID |
 
-**响应体** (`Result<Boolean>`):
+**响应体** (`Result<PostStatsResponse>`):
 
 ```json
 {
   "code": "200",
-  "message": "点赞成功",
-  "data": true,
+  "message": "success",
+  "data": {
+    "likeCount": 25,
+    "collectionCount": 10,
+    "readingCount": 150,
+    "coinCount": 5,
+    "liked": true,
+    "collected": false
+  },
   "detail": null
 }
 ```
 
----
-
-#### 5.4 收藏帖子
-
-**接口**: `POST /api/v2/posting/collection`
-
-**认证**: ✅ 需要
-
-**请求参数**:
-
-| 参数 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| postingId | Long | 是 | 帖子 ID |
-
-**响应体** (`Result<Boolean>`):
-
-```json
-{
-  "code": "200",
-  "message": "收藏成功",
-  "data": true,
-  "detail": null
-}
-```
+**说明**：此接口合并了原有的 `getCollectionCount`（获取收藏数）、`getLikeCount`（获取点赞数）、`isLiked`（是否点赞）、`isCollected`（是否收藏）、`getReadingCount`（获取阅读数）、`getCoinCount`（获取金币数）接口，提供完整的帖子统计信息。
 
 ---
 
-#### 5.5 取消点赞帖子
+#### 5.5 获取帖子阅读数（已弃用）
 
-**接口**: `POST /api/v2/posting/cancelLike`
-
-**认证**: ✅ 需要
-
-**请求参数**:
-
-| 参数 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| postingId | Long | 是 | 帖子 ID |
-
-**响应体** (`Result<Boolean>`):
-
-```json
-{
-  "code": "200",
-  "message": "取消点赞成功",
-  "data": true,
-  "detail": null
-}
-```
-
----
-
-#### 5.6 取消收藏帖子
-
-**接口**: `POST /api/v2/posting/cancelCollection`
-
-**认证**: ✅ 需要
-
-**请求参数**:
-
-| 参数 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| postingId | Long | 是 | 帖子 ID |
-
-**响应体** (`Result<Boolean>`):
-
-```json
-{
-  "code": "200",
-  "message": "取消收藏成功",
-  "data": true,
-  "detail": null
-}
-```
-
----
-
-#### 5.7 获取帖子的收藏数
-
-**接口**: `POST /api/v2/posting/getCollectionCount`
+**接口**: `POST /api/v2/posting/getReadingCount`
 
 **认证**: ✅ 需要
 
@@ -815,16 +793,18 @@ Authorization: Bearer <your_jwt_token>
 {
   "code": "200",
   "message": "success",
-  "data": 10,
+  "data": 150,
   "detail": null
 }
 ```
 
+**说明**：此接口已弃用，建议使用 `/stats` 接口获取完整的帖子统计信息（包含阅读数、金币数、点赞数、收藏数）。
+
 ---
 
-#### 5.8 获取帖子的点赞数
+#### 5.6 获取帖子金币数（已弃用）
 
-**接口**: `POST /api/v2/posting/getLikeCount`
+**接口**: `POST /api/v2/posting/getCoinCount`
 
 **认证**: ✅ 需要
 
@@ -840,60 +820,12 @@ Authorization: Bearer <your_jwt_token>
 {
   "code": "200",
   "message": "success",
-  "data": 25,
+  "data": 5,
   "detail": null
 }
 ```
 
----
-
-#### 5.9 判断是否点赞帖子
-
-**接口**: `POST /api/v2/posting/isLiked`
-
-**认证**: ✅ 需要
-
-**请求参数**:
-
-| 参数 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| postingId | Long | 是 | 帖子 ID |
-
-**响应体** (`Result<Boolean>`):
-
-```json
-{
-  "code": "200",
-  "message": "success",
-  "data": true,
-  "detail": null
-}
-```
-
----
-
-#### 5.10 判断是否收藏帖子
-
-**接口**: `POST /api/v2/posting/isCollected`
-
-**认证**: ✅ 需要
-
-**请求参数**:
-
-| 参数 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| postingId | Long | 是 | 帖子 ID |
-
-**响应体** (`Result<Boolean>`):
-
-```json
-{
-  "code": "200",
-  "message": "success",
-  "data": false,
-  "detail": null
-}
-```
+**说明**：此接口已弃用，建议使用 `/stats` 接口获取完整的帖子统计信息。
 
 ---
 
@@ -1389,7 +1321,305 @@ curl -X GET "http://localhost:8080/file/generate?fileName=1%2Favatar.jpg&expire=
 
 ---
 
-### 10. 管理员模块 (Admin)
+### 10. 邮件模块 (Mail)
+
+**基础路径**: `/api/v2/mail`
+
+**认证**: ✅ 需要 USER 角色
+
+#### 10.1 发送邮件
+
+**接口**: `POST /api/v2/mail/send`
+
+**认证**: ✅ 需要
+
+**Content-Type**: `application/json`
+
+**请求体** (`MailRequest`):
+
+```json
+{
+  "recipientId": 123,
+  "title": "邮件标题",
+  "content": "邮件内容"
+}
+```
+
+**请求参数说明**：
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| recipientId | Long | 是 | 收件人用户 ID |
+| title | String | 是 | 邮件标题 |
+| content | String | 是 | 邮件内容 |
+
+**响应体** (`Result<Boolean>`):
+
+```json
+{
+  "code": "200",
+  "message": "发送成功",
+  "data": true,
+  "detail": null
+}
+```
+
+---
+
+#### 10.2 读取邮件
+
+**接口**: `POST /api/v2/mail/read`
+
+**认证**: ✅ 需要
+
+**Content-Type**: `application/json`
+
+**请求体**: `Long` (邮件 ID)
+
+```
+123
+```
+
+**请求参数说明**：
+
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| mailId | Long | 是 | 邮件 ID |
+
+**响应体** (`Result<MailResponse>`):
+
+```json
+{
+  "code": "200",
+  "message": "success",
+  "data": {
+    "id": 123,
+    "senderId": 100,
+    "recipientId": 101,
+    "title": "邮件标题",
+    "content": "邮件内容",
+    "read": true,
+    "sendTime": "2026-03-28T10:30:00"
+  },
+  "detail": null
+}
+```
+
+---
+
+#### 10.3 获取邮件列表
+
+**接口**: `POST /api/v2/mail/list`
+
+**认证**: ✅ 需要
+
+**Content-Type**: `application/json`
+
+**请求体**: 无（或可接受 MailRequest 但实现中忽略）
+
+**响应体** (`Result<List<MailEncapsulateResponse>>`):
+
+```json
+{
+  "code": "200",
+  "message": "success",
+  "data": [
+    {
+      "id": 1,
+      "title": "邮件标题 1",
+      "senderName": "发件人名称",
+      "read": false
+    },
+    {
+      "id": 2,
+      "title": "邮件标题 2",
+      "senderName": "发件人名称 2",
+      "read": true
+    }
+  ],
+  "detail": null
+}
+```
+
+---
+
+### 11. 金币模块 (Coin)
+
+**基础路径**: `/api/v2/coin`
+
+**认证**: ✅ 需要 USER 角色
+
+#### 11.1 金币交易
+
+**接口**: `POST /api/v2/coin/change`
+
+**认证**: ✅ 需要
+
+**Content-Type**: `application/json`
+
+**请求体** (`CoinChangeRequest`):
+
+```json
+{
+  "amount": 100,
+  "type": "INCOME",
+  "reason": "帖子奖励"
+}
+```
+
+**请求参数说明**：
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| amount | Integer | 是 | 交易金额（正数） |
+| type | String | 是 | 交易类型：`INCOME`（收入）、`EXPENSE`（支出） |
+| reason | String | 否 | 交易原因 |
+
+**响应体** (`Result<Boolean>`):
+
+```json
+{
+  "code": "200",
+  "message": "交易成功",
+  "data": true,
+  "detail": null
+}
+```
+
+---
+
+#### 11.2 获取金币数量
+
+**接口**: `POST /api/v2/coin/get`
+
+**认证**: ✅ 需要
+
+**Content-Type**: `application/json`
+
+**请求体**: 无
+
+**响应体** (`Result<Integer>`):
+
+```json
+{
+  "code": "200",
+  "message": "success",
+  "data": 1500,
+  "detail": null
+}
+```
+
+---
+
+#### 11.3 签到
+
+**接口**: `POST /api/v2/coin/sign`
+
+**认证**: ✅ 需要
+
+**Content-Type**: `application/json`
+
+**请求体**: 无
+
+**响应体** (`Result<Boolean>`):
+
+```json
+{
+  "code": "200",
+  "message": "签到成功",
+  "data": true,
+  "detail": null
+}
+```
+
+---
+
+### 12. 商品模块 (Goods)
+
+**基础路径**: `/api/v1/auth`
+
+**认证**: ✅ 需要（继承默认安全配置）
+
+#### 12.1 购买商品
+
+**接口**: `POST /api/v1/auth/buy`
+
+**认证**: ✅ 需要
+
+**Content-Type**: `application/x-www-form-urlencoded` 或 `multipart/form-data`
+
+**请求参数**:
+
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| goodId | Integer | 是 | 商品 ID |
+
+**响应体** (`Result<Boolean>`):
+
+```json
+{
+  "code": "200",
+  "message": "购买成功",
+  "data": true,
+  "detail": null
+}
+```
+
+---
+
+#### 12.2 获取购买列表
+
+**接口**: `GET /api/v1/auth/get/my/list`
+
+**认证**: ✅ 需要
+
+**响应体** (`Result<List<BuyResponse>>`):
+
+```json
+{
+  "code": "200",
+  "message": "success",
+  "data": [
+    {
+      "goodId": 1,
+      "goodName": "商品名称",
+      "buyTime": "2026-03-28T10:30:00"
+    }
+  ],
+  "detail": null
+}
+```
+
+---
+
+#### 12.3 获取所有商品
+
+**接口**: `GET /api/v1/auth/get/all`
+
+**认证**: ✅ 需要
+
+**响应体** (`Result<List<Good>>`):
+
+```json
+{
+  "code": "200",
+  "message": "success",
+  "data": [
+    {
+      "id": 1,
+      "name": "商品名称",
+      "description": "商品描述",
+      "price": 100,
+      "stock": 50
+    }
+  ],
+  "detail": null
+}
+```
+
+---
+
+### 13. 管理员模块 (Admin)
 
 **基础路径**: `/api/yachiyo/168/mini/admin`
 
@@ -1397,7 +1627,7 @@ curl -X GET "http://localhost:8080/file/generate?fileName=1%2Favatar.jpg&expire=
 
 **说明**: 该模块用于管理 RAG（检索增强生成）资源，仅管理员可访问。
 
-#### 10.1 上传资源
+#### 13.1 上传资源
 
 **接口**: `POST /api/yachiyo/168/mini/admin/upload`
 
@@ -1427,15 +1657,242 @@ curl -X GET "http://localhost:8080/file/generate?fileName=1%2Favatar.jpg&expire=
 }
 ```
 
+#### 13.2 运行命令
+
+**接口**: `POST /api/yachiyo/168/mini/admin/run-command`
+
+**认证**: ✅ 需要管理员权限
+
+**Content-Type**: `application/x-www-form-urlencoded` 或 `multipart/form-data`
+
+**请求参数**:
+
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| command | String | 是 | 要执行的命令 |
+
+**响应体** (`Result<String>`):
+
+```json
+{
+  "code": "200",
+  "message": "success",
+  "data": "命令执行结果",
+  "detail": null
+}
+```
+
 ---
 
-### 11. 测试模块 (Test)
+#### 13.3 获取剩余 Token
+
+**接口**: `POST /api/yachiyo/168/mini/admin/get-remaining-token`
+
+**认证**: ✅ 需要管理员权限
+
+**请求体**: 无
+
+**响应体** (`Result<Long>`):
+
+```json
+{
+  "code": "200",
+  "message": "success",
+  "data": 1000,
+  "detail": null
+}
+```
+
+返回剩余的 AI 模型 token 数量。
+
+---
+
+#### 13.4 更改 API 密钥
+
+**接口**: `POST /api/yachiyo/168/mini/admin/change-api-key`
+
+**认证**: ✅ 需要管理员权限
+
+**Content-Type**: `application/x-www-form-urlencoded` 或 `multipart/form-data`
+
+**请求参数**:
+
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| apiKey | String | 是 | 新的 API 密钥 |
+| model | String | 是 | 模型名称（如 "qwen-max"） |
+
+**响应体** (`Result<Void>`):
+
+```json
+{
+  "code": "200",
+  "message": "API 密钥已更新",
+  "data": null,
+  "detail": null
+}
+```
+
+---
+
+#### 13.5 管理员登录
+
+**接口**: `POST /api/yachiyo/168/mini/admin/login`
+
+**认证**: ❌ 不需要（登录接口本身）
+
+**Content-Type**: `application/x-www-form-urlencoded` 或 `multipart/form-data`
+
+**请求参数**:
+
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| username | String | 是 | 管理员用户名 |
+| password | String | 是 | 管理员密码 |
+
+**响应体** (`Result<String>`):
+
+```json
+{
+  "code": "200",
+  "message": "登录成功",
+  "data": "管理员 JWT Token",
+  "detail": null
+}
+```
+
+---
+
+#### 13.6 审核帖子（合并接口）
+
+**接口**: `POST /api/yachiyo/168/mini/admin/review`
+
+**认证**: ✅ 需要管理员权限
+
+**Content-Type**: `application/json`
+
+**请求体** (`ReviewRequest`):
+
+```json
+{
+  "postingId": 123,
+  "action": "APPROVE",
+  "reason": "可选，拒绝原因"
+}
+```
+
+**请求参数说明**：
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| postingId | Long | 是 | 帖子 ID |
+| action | String | 是 | 审核操作：`APPROVE`（通过）、`REJECT`（拒绝）、`DELETE`（删除） |
+| reason | String | 否 | 拒绝原因（当 action 为 `REJECT` 时可选） |
+
+**响应体** (`Result<Boolean>`):
+
+```json
+{
+  "code": "200",
+  "message": "审核成功",
+  "data": true,
+  "detail": null
+}
+```
+
+**说明**：此接口合并了原有的 `approve-posting`、`reject-posting` 和 `delete-posting` 接口。
+
+---
+
+#### 13.7 查询帖子（合并接口）
+
+**接口**: `POST /api/yachiyo/168/mini/admin/query-postings`
+
+**认证**: ✅ 需要管理员权限
+
+**Content-Type**: `application/json`
+
+**请求体** (`PostingQueryRequest`):
+
+```json
+{
+  "status": "PENDING",
+  "keyword": "搜索关键词",
+  "pageNum": 1,
+  "pageSize": 20
+}
+```
+
+**请求参数说明**：
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| status | String | 否 | 帖子状态：`PENDING`（待审核）、`APPROVED`（已通过）、`REJECTED`（已拒绝） |
+| keyword | String | 否 | 搜索关键词（标题或内容匹配） |
+| pageNum | Integer | 否 | 页码，默认 1 |
+| pageSize | Integer | 否 | 每页大小，默认 20 |
+
+**响应体** (`Result<List<Posting>>`):
+
+```json
+{
+  "code": "200",
+  "message": "success",
+  "data": [
+    {
+      "id": 1,
+      "userId": 100,
+      "title": "帖子标题",
+      "content": "帖子内容",
+      "type": "text",
+      "status": "PENDING",
+      "createTime": "2026-03-26T10:30:00"
+    }
+  ],
+  "detail": null
+}
+```
+
+**说明**：此接口合并了原有的 `get-all-posting`、`get-unapproved-posting` 和 `get-rejected-posting` 接口，支持状态筛选和关键词搜索。
+
+---
+
+#### 13.8 删除帖子（已弃用）
+
+**接口**: `POST /api/yachiyo/168/mini/admin/delete-posting`
+
+**认证**: ✅ 需要管理员权限
+
+**Content-Type**: `application/x-www-form-urlencoded` 或 `multipart/form-data`
+
+**请求参数**:
+
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| postingId | Long | 是 | 帖子 ID |
+
+**响应体** (`Result<Boolean>`):
+
+```json
+{
+  "code": "200",
+  "message": "删除成功",
+  "data": true,
+  "detail": null
+}
+```
+
+**说明**：此接口已弃用，建议使用 `/review` 接口，action 设置为 `DELETE`。
+
+---
+
+### 14. 测试模块 (Test)
 
 **基础路径**: `/api/v3/test`
 
 **认证**: ❌ 不需要（v3 接口全部开放）
 
-#### 11.1 测试接口
+#### 14.1 测试接口
 
 **接口**: `GET /api/v3/test/hello`
 
@@ -1454,7 +1911,7 @@ Hello World!
 ### DTO 类
 
 #### LoginRequest
-```java
+```json5
 {
   "username": "String",  // 用户名或手机号
   "password": "String"   // 密码
@@ -1462,7 +1919,7 @@ Hello World!
 ```
 
 #### RegisterRequest
-```java
+```json5
 {
   "username": "String",  // 用户名
   "password": "String",  // 密码
@@ -1472,7 +1929,7 @@ Hello World!
 ```
 
 #### ChatRequest
-```java
+```json5
 {
   "message": "String",        // 消息内容
   "conversationId": "String"  // 会话 ID
@@ -1480,7 +1937,7 @@ Hello World!
 ```
 
 #### UploadPostingRequest
-```java
+```json
 {
   "title": "String",
   "content": "String",
@@ -1491,7 +1948,7 @@ Hello World!
 ```
 
 #### CommentRequest
-```java
+```json5
 {
   "postingId": "Long",
   "content": "String"
@@ -1499,7 +1956,7 @@ Hello World!
 ```
 
 #### UserDetailResponse
-```java
+```json5
 {
   "userName": "String",        // 用户名
   "userIntroduction": "String",// 个人简介
@@ -1511,7 +1968,7 @@ Hello World!
 ```
 
 #### ConversationResponse
-```java
+```json5
 {
   "id": "Long",
   "title": "String"
@@ -1519,7 +1976,7 @@ Hello World!
 ```
 
 #### PostEncapsulateResponse
-```java
+```json5
 {
   "title": "String",
   "posterId": "Long",
@@ -1528,7 +1985,7 @@ Hello World!
 ```
 
 #### GetPostingResponse
-```java
+```json5
 {
   "content": "String",
   "filenames": "List<String>",
@@ -1537,7 +1994,7 @@ Hello World!
 ```
 
 #### CommentResponse
-```java
+```json5
 {
   "id": "Long",
   "userId": "Long",
@@ -1547,7 +2004,7 @@ Hello World!
 ```
 
 #### PosterDetailResponse
-```java
+```json5
 {
   "userName": "String",
   "userAvatar": "String"
@@ -1555,17 +2012,118 @@ Hello World!
 ```
 
 #### PromptResponse
-```java
+```json5
 {
   "user": "String",
   "assistant": "String"
 }
 ```
 
+#### InteractionRequest
+```json5
+{
+  "postingId": "Long",
+  "type": "String",  // 互动类型：LIKE（点赞）、COLLECTION（收藏）
+  "action": "String" // 操作类型：ADD（添加）、REMOVE（移除）、TOGGLE（切换）
+}
+```
+
+#### PostStatsResponse
+```json5
+{
+  "likeCount": "Long",
+  "collectionCount": "Long",
+  "readingCount": "Long",
+  "coinCount": "Long",
+  "liked": "Boolean",
+  "collected": "Boolean"
+}
+```
+
+#### ReviewRequest
+```json5
+{
+  "postingId": "Long",
+  "action": "String", // 审核操作：APPROVE（通过）、REJECT（拒绝）、DELETE（删除）
+  "reason": "String"  // 拒绝原因（可选）
+}
+```
+
+#### PostingQueryRequest
+```json5
+{
+  "status": "String",   // 帖子状态：PENDING（待审核）、APPROVED（已通过）、REJECTED（已拒绝）
+  "keyword": "String",  // 搜索关键词
+  "pageNum": "Integer", // 页码
+  "pageSize": "Integer" // 每页大小
+}
+```
+
+#### MailRequest
+```json5
+{
+  "recipientId": "Long",
+  "title": "String",
+  "content": "String"
+}
+```
+
+#### MailResponse
+```json5
+{
+  "id": "Long",
+  "senderId": "Long",
+  "recipientId": "Long",
+  "title": "String",
+  "content": "String",
+  "read": "Boolean",
+  "sendTime": "Date"
+}
+```
+
+#### MailEncapsulateResponse
+```json5
+{
+  "id": "Long",
+  "title": "String",
+  "senderName": "String",
+  "read": "Boolean"
+}
+```
+
+#### CoinChangeRequest
+```json5
+{
+  "amount": "Integer",
+  "type": "String",  // 交易类型：INCOME（收入）、EXPENSE（支出）
+  "reason": "String" // 交易原因
+}
+```
+
+#### BuyResponse
+```json5
+{
+  "goodId": "Integer",
+  "goodName": "String",
+  "buyTime": "Date"
+}
+```
+
+#### Good
+```json5
+{
+  "id": "Integer",
+  "name": "String",
+  "description": "String",
+  "price": "Integer",
+  "stock": "Integer"
+}
+```
+
 ### 实体类
 
 #### User
-```java
+```json5
 {
   "id": "Long",         // 用户 ID
   "name": "String",     // 用户名
@@ -1576,7 +2134,7 @@ Hello World!
 ```
 
 #### UserDetail
-```java
+```json5
 {
   "userId": "Long",
   "userIntroduction": "String",
@@ -1588,7 +2146,7 @@ Hello World!
 ```
 
 #### Posting
-```java
+```json5
 {
   "id": "Long",
   "userId": "Long",
@@ -1599,7 +2157,7 @@ Hello World!
 ```
 
 #### PostDetail
-```java
+```json5
 {
   "id": "Long",
   "love": "Long",        // 点赞数
@@ -1609,7 +2167,7 @@ Hello World!
 ```
 
 #### Comment
-```java
+```json5
 {
   "id": "Long",
   "userId": "Long",
@@ -1619,7 +2177,7 @@ Hello World!
 ```
 
 #### Conversation
-```java
+```json5
 {
   "id": "Long",
   "userId": "Long",
@@ -1630,7 +2188,7 @@ Hello World!
 ```
 
 #### Message
-```java
+```json5
 {
   "id": "String",           // 会话 ID
   "content": "String",      // 消息内容
@@ -1640,7 +2198,7 @@ Hello World!
 ```
 
 #### LinkLike
-```java
+```json5
 {
   "userId": "Long",
   "postingId": "Long"
@@ -1648,7 +2206,7 @@ Hello World!
 ```
 
 #### LinkCollection
-```java
+```json
 {
   "userId": "Long",
   "postingId": "Long"
@@ -1712,10 +2270,22 @@ Hello World!
 
 ---
 
-**文档生成时间**: 2026-03-26  
-**文档版本**: v1.2 (文件模块更新版)
+**文档生成时间**: 2026-03-28
+**文档版本**: v1.3 (缺失接口补充版)
 
 **更新日志**:
+
+### v1.3 (2026-03-28)
+- 补充了缺失的22个接口文档
+  - 管理员模块：运行命令、获取剩余token、更改API密钥、登录、审核帖子、查询帖子、删除帖子（已弃用）
+  - 邮件模块：发送邮件、读取邮件、获取邮件列表
+  - 金币模块：金币交易、获取金币数量、签到
+  - 商品模块：购买商品、获取购买列表、获取所有商品
+  - 帖子模块：获取帖子阅读数（已弃用）、获取帖子金币数（已弃用）
+- 新增邮件模块、金币模块、商品模块章节
+- 更新管理员模块，添加合并接口（review、query-postings）
+- 更新数据模型，添加新的DTO类
+- 更新目录结构，重新编号章节
 
 ### v1.2 (2026-03-26)
 - 更新了文件模块的详细文档
