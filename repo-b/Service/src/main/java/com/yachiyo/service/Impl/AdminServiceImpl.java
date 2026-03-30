@@ -12,7 +12,6 @@ import com.yachiyo.enumeration.ReviewAction;
 import com.yachiyo.mapper.PostingMapper;
 import com.yachiyo.result.Result;
 import com.yachiyo.service.AdminService;
-import com.yachiyo.service.PostingService;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
@@ -105,7 +104,7 @@ public class AdminServiceImpl implements AdminService {
         return Result.success(null);
     }
 
-    @Override
+    @Override @SuppressWarnings("all")
     public Result<String> RunCommand(String command) {
         try {
             // 执行命令
@@ -137,77 +136,6 @@ public class AdminServiceImpl implements AdminService {
 
         } catch (Exception e) {
             return Result.error("400", "执行命令失败", e.getMessage());
-        }
-    }
-
-    @Override
-    public Result<Boolean> ApprovePosting(Long postingId) {
-        try {
-            Posting posting = new Posting();
-            posting.setId(postingId);
-            posting.setIsApproved(true);
-            postingMapper.updateById(posting);
-            return Result.success(true);
-        } catch (Exception e) {
-            return Result.error("400", "审核帖子失败", e.getMessage());
-        }
-    }
-
-    @Override
-    public Result<Boolean> RejectPosting(Long postingId) {
-        try {
-            Posting posting = new Posting();
-            posting.setId(postingId);
-            posting.setIsApproved(false);
-            postingMapper.updateById(posting);
-            return Result.success(true);
-        } catch (Exception e) {
-            return Result.error("400", "拒绝帖子失败", e.getMessage());
-        }
-    }
-
-    @Override
-    public Result<List<Posting>> GetAllPosting() {
-        try {
-            List<Posting> postings = postingMapper.selectList(null);
-            return Result.success(postings);
-        } catch (Exception e) {
-            return Result.error("400", "获取所有帖子失败", e.getMessage());
-        }
-    }
-
-    @Override
-    public Result<List<Posting>> GetUnapprovedPosting() {
-        try {
-            List<Posting> postings = postingMapper.selectList(new LambdaQueryWrapper<Posting>()
-                    .eq(Posting::getIsApproved, null));
-            return Result.success(postings);
-        } catch (Exception e) {
-            return Result.error("400", "获取未审核帖子失败", e.getMessage());
-        }
-    }
-
-    @Override
-    public Result<Boolean> DeletePosting(Long postingId) {
-        try {
-            // 复用reviewPosting逻辑
-            ReviewRequest request = new ReviewRequest();
-            request.setPostingId(postingId);
-            request.setAction(ReviewAction.DELETE);
-            return reviewPosting(request);
-        } catch (Exception e) {
-            return Result.error("400", "删除帖子失败", e.getMessage());
-        }
-    }
-
-    @Override
-    public Result<List<Posting>> GetRejectedPosting() {
-        try {
-            List<Posting> postings = postingMapper.selectList(new LambdaQueryWrapper<Posting>()
-                    .eq(Posting::getIsApproved, false));
-            return Result.success(postings);
-        } catch (Exception e) {
-            return Result.error("400", "获取拒绝帖子失败", e.getMessage());
         }
     }
 

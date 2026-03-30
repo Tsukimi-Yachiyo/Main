@@ -1,6 +1,7 @@
 package com.yachiyo.controller;
 
 import com.yachiyo.result.Result;
+import com.yachiyo.service.CoinChangeService;
 import com.yachiyo.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
@@ -24,4 +25,11 @@ public class FujuController {
         return userService.sign();
     }
 
+    /**
+     * 开启钱包
+     */
+    @PostMapping("/open-wallet")
+    public Result<Boolean> openWallet() {
+        return userService.openWallet();
+    }
 }

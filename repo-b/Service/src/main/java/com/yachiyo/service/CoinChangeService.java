@@ -17,4 +17,5 @@ public interface CoinChangeService {
      * @return 金币
      */
     Result<Integer> getCoin();
+
 }

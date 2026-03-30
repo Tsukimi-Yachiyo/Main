@@ -54,4 +54,11 @@ public interface AuthService {
      */
     @Schema(description = "邮箱登录请求")
     Result<String> LoginByEmail(MailLoginRequest mailLoginRequest);
+
+    /**
+     * 刷新令牌
+     * @return 刷新令牌结果
+     */
+    @Schema(description = "刷新令牌请求")
+    Result<String> RefreshToken(String token, Long userId);
 }

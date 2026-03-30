@@ -8,10 +8,12 @@ import com.yachiyo.dto.UserDetailResponse;
 import com.yachiyo.entity.CoinLog;
 import com.yachiyo.entity.User;
 import com.yachiyo.entity.UserDetail;
+import com.yachiyo.entity.UserWallet;
 import com.yachiyo.enumeration.TradeType;
 import com.yachiyo.mapper.CoinLogMapper;
 import com.yachiyo.mapper.UserDetailMapper;
 import com.yachiyo.mapper.UserMapper;
+import com.yachiyo.mapper.UserWalletMapper;
 import com.yachiyo.result.Result;
 import com.yachiyo.service.CoinChangeService;
 import com.yachiyo.service.UserService;
@@ -39,6 +41,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private CoinLogMapper coinLogMapper;
+
+    @Autowired
+    private UserWalletMapper userWalletMapper;
 
     @Autowired
     private CoinChangeService coinChangeService;
@@ -139,6 +144,28 @@ public class UserServiceImpl implements UserService {
         coinChangeRequest.setType(TradeType.CHECKIN);
         coinChangeRequest.setAmount(8.0);
         return coinChangeService.changeCoin(coinChangeRequest);
+    }
+
+    @Override
+    public Result<Boolean> openWallet() {
+        // 从安全上下文获取当前用户id
+        Long userId = ((User) Objects.requireNonNull(Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getPrincipal())).getId();
+        // 从数据库中获取用户详情
+        UserDetail userDetail = userDetailMapper.selectById(userId);
+        if (userDetail == null) {
+            return Result.error("404", "用户不存在"+userId);
+        }
+        UserWallet userWallet = userWalletMapper.selectById(userId);
+        if (userWallet != null) {
+            return Result.error("400", "用户已开启钱包");
+        }
+        UserWallet newUserWallet = new UserWallet();
+        newUserWallet.setId(userId);
+        newUserWallet.setBalance(0.0);
+        newUserWallet.setVersion(0);
+        userWalletMapper.insert(newUserWallet);
+        // 开启钱包成功
+        return Result.success(true);
     }
 
     /**

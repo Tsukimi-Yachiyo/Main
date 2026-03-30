@@ -50,7 +50,8 @@ public class JwtUtils {
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(uniqueCode)
-                .setIssuedAt(new Date(System.currentTimeMillis() + expiration * 1000L))
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + expiration * 1000L))
                 .signWith(getSignKey(), SignatureAlgorithm.HS256)
                 .signWith(getSignKey())
                 .compact();
@@ -158,5 +159,17 @@ public class JwtUtils {
             log.error("JWT令牌过期检查失败: {}", e.getMessage());
             return true;
         }
+    }
+
+    /**
+     * 更新JWT令牌
+     * @param token JWT令牌
+     * @param uniqueCode 唯一标识
+     * @return 更新后的JWT令牌
+     */
+    public String updateToken(String token, String uniqueCode) {
+        String userId = getUserIdFromToken(token);
+        String name = getNameFromToken(token);
+        return generateToken(Long.parseLong(userId), name, uniqueCode);
     }
 }

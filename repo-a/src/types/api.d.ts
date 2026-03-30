@@ -132,10 +132,40 @@ export interface AdminPosting {
 }
 
 /**
+ * 帖子互动请求
+ */
+export interface InteractionRequest {
+  postingId: number
+  type: 'LIKE' | 'COLLECTION'
+  action: 'ADD' | 'REMOVE' | 'TOGGLE'
+}
+
+/**
+ * 帖子统计响应
+ */
+export interface PostStatsResponse {
+  likeCount: number
+  collectionCount: number
+  readingCount: number
+  coinCount: number
+  liked: boolean
+  collected: boolean
+}
+
+/**
  * 会话历史
  */
 export interface Conversation {
   id: string | number
   title?: string
+  [key: string]: any
+}
+
+/**
+ * 用户自己的帖子响应
+ */
+export interface SelfPostResponse {
+  postingId: number
+  approved?: boolean | null
   [key: string]: any
 }

@@ -50,6 +50,10 @@ public class SecuritySafeToolConfig {
 
     public boolean checkUnique(int userId, String unique) {
         HashOperations<String, String, Object> hashOps = redisTemplate.opsForHash();
-        return unique.equals(Objects.requireNonNull(hashOps.get("user:" + userId, "unique")).toString());
+        String redisUnique = hashOps.get("user:" + userId, "unique").toString();
+        if (redisUnique == null) {
+            return false;
+        }
+        return unique.equals(redisUnique);
     }
 }

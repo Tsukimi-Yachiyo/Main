@@ -41,47 +41,6 @@ public interface AdminService {
     Result<String> RunCommand(String command);
 
     /**
-     * 审核帖子
-     *
-     * @param postingId 帖子 id
-     */
-    @Deprecated
-    Result<Boolean> ApprovePosting(Long postingId);
-
-    /**
-     * 拒绝帖子
-     *
-     * @param postingId 帖子 id
-     */
-    @Deprecated
-    Result<Boolean> RejectPosting(Long postingId);
-
-    /**
-     * 获取所有帖子
-     *
-     * @return 所有帖子
-     */
-    @Deprecated
-    Result<List<Posting>> GetAllPosting();
-
-    /**
-     * 获取未审核帖子
-     *
-     * @return 未审核帖子
-     */
-    @Deprecated
-    Result<List<Posting>> GetUnapprovedPosting();
-
-    /**
-     * 删除帖子
-     *
-     * @param postingId 帖子 id
-     * @deprecated 使用 {@link #reviewPosting(ReviewRequest)} 替代，action 设置为 DELETE
-     */
-    @Deprecated
-    Result<Boolean> DeletePosting(Long postingId);
-
-    /**
      * 审核帖子（通过/拒绝/删除）
      *
      * @param request 审核请求
@@ -96,12 +55,4 @@ public interface AdminService {
      * @return 帖子列表
      */
     Result<List<Posting>> queryPostings(PostingQueryRequest request);
-
-    /**
-     * 获取拒绝帖子
-     *
-     * @return 拒绝帖子
-     */
-    @Deprecated
-    Result<List<Posting>> GetRejectedPosting();
 }

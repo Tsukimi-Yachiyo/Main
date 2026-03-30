@@ -1,16 +1,14 @@
 package com.yachiyo.controller;
 
 import com.yachiyo.dto.LoginRequest;
+import com.yachiyo.dto.MailLoginRequest;
 import com.yachiyo.dto.RegisterRequest;
 import com.yachiyo.result.Result;
 import com.yachiyo.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
@@ -50,5 +48,43 @@ public class AuthController {
     @PostMapping("/send-code")
     public Result<Boolean> SendCode(@RequestBody @Valid String email) {
         return authService.SendCode(email);
+    }
+
+    /**
+     * 更改密码
+     * @param registerRequest 更改密码请求
+     * @return 更改密码结果
+     */
+    @PostMapping("/change-password")
+    public Result<Boolean> ChangePassword(@RequestBody @Valid RegisterRequest registerRequest) {
+        return authService.ChangePassword(registerRequest);
+    }
+
+    /**
+     * 退出登录
+     * @return 退出登录结果
+     */
+    @PostMapping("/logout")
+    public Result<Boolean> Logout() {
+        return authService.Logout();
+    }
+
+    /**
+     * 邮箱登录
+     * @param mailLoginRequest 登录邮箱登录请求
+     * @return 登录结果
+     */
+    @PostMapping("/login-by-email")
+    public Result<String> LoginByEmail(@RequestBody @Valid MailLoginRequest mailLoginRequest) {
+        return authService.LoginByEmail(mailLoginRequest);
+    }
+
+    /**
+     * 刷新令牌
+     * @return 刷新令牌结果
+     */
+    @PostMapping("/refresh-token")
+    public Result<String> RefreshToken(@RequestParam String refreshToken, @RequestParam Long userId) {
+        return authService.RefreshToken(refreshToken, userId);
     }
 }

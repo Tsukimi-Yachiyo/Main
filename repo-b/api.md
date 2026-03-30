@@ -167,14 +167,17 @@ Authorization: Bearer <your_jwt_token>
 - `/api/v1/auth/login` - 用户登录
 - `/api/v1/auth/register` - 用户注册
 - `/api/v1/auth/send-code` - 发送验证码
+- `/api/v1/auth/refresh-token` - 刷新令牌
+- `/api/v1/auth/login-by-email` - 邮箱登录
 - `/api/v3/**` - 所有 v3 版本接口（测试接口）
 - `/file/**` - 文件访问接口
+- `/api/yachiyo/168/mini/admin/login` - 管理员登录
 
 #### 认证级别
 
 - **USER 角色**: 需要访问 `/api/v2/**` 下的所有接口
 - **AUTHENTICATED**: 其他所有需要认证的接口（已登录用户即可访问）
-- **PERMIT_ALL**: 无需认证即可访问的接口（登录、注册、发送验证码、文件访问、测试接口）
+- **PERMIT_ALL**: 无需认证即可访问的接口（登录、注册、发送验证码、刷新令牌、邮箱登录、文件访问、测试接口、管理员登录）
 
 #### 认证流程
 
@@ -183,6 +186,15 @@ Authorization: Bearer <your_jwt_token>
 3. 客户端在后续请求的 Header 中携带该 Token
 4. 服务器通过 JwtFilter 验证 Token 有效性
 5. 验证通过后设置用户上下文信息
+6. 服务器在每次请求时自动更新 JWT Token，并在响应头中返回新的 Token（Token 自动刷新机制）
+7. 客户端可定期使用 `/api/v1/auth/refresh-token` 接口主动刷新 Token
+8. 用户也可通过 `/api/v1/auth/login-by-email` 使用邮箱和验证码登录
+
+**Token 自动刷新说明**：
+- 每次请求通过 JwtFilter 时，服务器会检查 Token 有效性
+- 如果 Token 有效，服务器会生成新的 Token 并设置在响应头中（Header 名称由 JwtUtils 配置）
+- 客户端应检查响应头并更新本地存储的 Token
+- 自动刷新可延长会话有效期，无需用户重新登录
 
 ---
 
@@ -341,6 +353,125 @@ Authorization: Bearer <your_jwt_token>
 
 ---
 
+#### 1.4 更改密码
+
+**接口**: `POST /api/v1/auth/change-password`
+
+**认证**: ❌ 不需要（需要验证码）
+
+**请求体** (`RegisterRequest`):
+
+```json
+{
+  "username": "string",
+  "password": "string",
+  "email": "string",
+  "code": "string"
+}
+```
+
+**请求参数说明**：
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| username | String | 是 | 用户名 |
+| password | String | 是 | 新密码 |
+| email | String | 是 | 邮箱 |
+| code | String | 是 | 验证码 |
+
+**响应体** (`Result<Boolean>`):
+
+```json
+{
+  "code": "200",
+  "message": "密码更改成功",
+  "data": true,
+  "detail": null
+}
+```
+
+---
+#### 1.5 退出登录
+
+**接口**: `POST /api/v1/auth/logout`
+
+**认证**: ✅ 需要（需要有效JWT令牌）
+
+**请求体**: 无
+
+**响应体** (`Result<Boolean>`):
+
+```json
+{
+  "code": "200",
+  "message": "退出登录成功",
+  "data": true,
+  "detail": null
+}
+```
+
+---
+#### 1.6 邮箱登录
+
+**接口**: `POST /api/v1/auth/login-by-email`
+
+**认证**: ❌ 不需要
+
+**请求体** (`MailLoginRequest`):
+
+```json
+{
+  "email": "string",
+  "code": "string",
+  "password": "string"
+}
+```
+
+**请求参数说明**：
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| email | String | 是 | 邮箱地址 |
+| code | String | 是 | 验证码 |
+| password | String | 是 | 密码 |
+
+**响应体** (`Result<String>`):
+
+```json
+{
+  "code": "200",
+  "message": "登录成功",
+  "data": "jwt_token_string",
+  "detail": null
+}
+```
+
+---
+#### 1.7 刷新令牌
+
+**接口**: `POST /api/v1/auth/refresh-token`
+
+**认证**: ❌ 不需要（但需要提供refreshToken和userId）
+
+**请求参数**:
+
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| refreshToken | String | 是 | 刷新令牌 |
+| userId | Long | 是 | 用户ID |
+
+**响应体** (`Result<String>`):
+
+```json
+{
+  "code": "200",
+  "message": "令牌刷新成功",
+  "data": "新的_jwt_token_string",
+  "detail": null
+}
+```
+
+---
 ### 2. AI 聊天模块 (AI Chat)
 
 **基础路径**: `/api/v2/ai`
@@ -1534,6 +1665,26 @@ curl -X GET "http://localhost:8080/file/generate?fileName=1%2Favatar.jpg&expire=
 
 ---
 
+#### 11.4 开启钱包
+
+**接口**: `POST /api/v2/coin/open-wallet`
+
+**认证**: ✅ 需要 USER 角色
+
+**请求体**: 无
+
+**响应体** (`Result<Boolean>`):
+
+```json
+{
+  "code": "200",
+  "message": "钱包开启成功",
+  "data": true,
+  "detail": null
+}
+```
+
+---
 ### 12. 商品模块 (Goods)
 
 **基础路径**: `/api/v1/auth`
@@ -1800,7 +1951,7 @@ curl -X GET "http://localhost:8080/file/generate?fileName=1%2Favatar.jpg&expire=
 }
 ```
 
-**说明**：此接口合并了原有的 `approve-posting`、`reject-posting` 和 `delete-posting` 接口。
+**说明**：此接口合并了原有的 `approve-posting`、`reject-posting` 和 `delete-posting` 接口。这些旧接口已在 commit 93c141e 中从代码中移除。
 
 ---
 
@@ -1853,7 +2004,7 @@ curl -X GET "http://localhost:8080/file/generate?fileName=1%2Favatar.jpg&expire=
 }
 ```
 
-**说明**：此接口合并了原有的 `get-all-posting`、`get-unapproved-posting` 和 `get-rejected-posting` 接口，支持状态筛选和关键词搜索。
+**说明**：此接口合并了原有的 `get-all-posting`、`get-unapproved-posting` 和 `get-rejected-posting` 接口，支持状态筛选和关键词搜索。这些旧接口已在 commit 93c141e 中从代码中移除。
 
 ---
 
@@ -1882,7 +2033,7 @@ curl -X GET "http://localhost:8080/file/generate?fileName=1%2Favatar.jpg&expire=
 }
 ```
 
-**说明**：此接口已弃用，建议使用 `/review` 接口，action 设置为 `DELETE`。
+**说明**：此接口已弃用，建议使用 `/review` 接口，action 设置为 `DELETE`。该接口已在 commit 93c141e 中从代码中移除。
 
 ---
 
@@ -1925,6 +2076,15 @@ Hello World!
   "password": "String",  // 密码
   "email": "String",     // 邮箱
   "code": "String"       // 验证码
+}
+```
+
+#### MailLoginRequest
+```json5
+{
+  "email": "String",    // 邮箱地址
+  "code": "String",     // 验证码
+  "password": "String"  // 密码
 }
 ```
 
@@ -2270,10 +2430,20 @@ Hello World!
 
 ---
 
-**文档生成时间**: 2026-03-28
-**文档版本**: v1.3 (缺失接口补充版)
+**文档生成时间**: 2026-03-29
+**文档版本**: v1.4 (admin接口更新版)
 
 **更新日志**:
+
+### v1.4 (2026-03-29)
+- 根据 commit 93c141e 更新管理员接口
+  - 删除已弃用的 `delete-posting` 接口（代码中已移除）
+  - 删除其他已弃用的管理员接口：`approve-posting`, `reject-posting`, `get-all-posting`, `get-unapproved-posting`, `get-rejected-posting`（代码中已移除）
+  - 保留合并接口 `review` 和 `query-postings`
+- 新增认证模块接口：更改密码、退出登录、邮箱登录、刷新令牌
+- 新增金币模块接口：开启钱包
+- 更新安全认证部分，添加令牌自动刷新机制说明
+- 更新免认证接口列表，添加刷新令牌、邮箱登录、管理员登录接口
 
 ### v1.3 (2026-03-28)
 - 补充了缺失的22个接口文档

@@ -66,14 +66,4 @@ public class AdminController {
     public Result<List<Posting>> queryPostings(@RequestBody @Valid PostingQueryRequest request) {
         return adminService.queryPostings(request);
     }
-
-    // 为了向后兼容，保留删除接口但标记为弃用
-    @Deprecated
-    @PostMapping("/delete-posting")
-    public Result<Boolean> deletePosting(@RequestParam("postingId") Long postingId) {
-        ReviewRequest request = new ReviewRequest();
-        request.setPostingId(postingId);
-        request.setAction(com.yachiyo.enumeration.ReviewAction.DELETE);
-        return adminService.reviewPosting(request);
-    }
 }

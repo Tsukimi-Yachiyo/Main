@@ -90,7 +90,14 @@ logging:
 
 # 安全配置
 security:
-  open-api: /api/v1/auth/login,/api/v1/auth/register,/api/v1/auth/send-code,/file/**,/api/yachiyo/168/mini/admin/login
+  open-api:
+    - /api/v1/auth/login
+    - /api/v1/auth/register
+    - /api/v1/auth/send-code
+    - /file/**
+    - /api/yachiyo/168/mini/admin/login
+    - /api/v1/auth/refresh-token
+    - /api/v1/auth/login-by-email
 
 management:
   endpoints:

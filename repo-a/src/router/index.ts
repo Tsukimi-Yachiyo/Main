@@ -67,6 +67,16 @@ const routes: RouteRecordRaw[] = [
     component: () => import('../components/IconTest/IconTest.vue') as Promise<any>,
   },
   {
+    path: '/message',
+    name: 'MessageCenter',
+    // 懒加载消息中心页面组件
+    component: () => import('../pages/MessageCenter.vue') as Promise<any>,
+    // 路由守卫，需要登录才能访问
+    meta: {
+      requiresAuth: false,
+    },
+  },
+  {
     path: '/tsukuyomi/post-editor',
     name: 'PostEditor',
     // 懒加载帖子编辑上传界面组件
@@ -80,11 +90,33 @@ const routes: RouteRecordRaw[] = [
     path: '/admin',
     name: 'Admin',
     // 懒加载admin页面组件
-    component: () => import('../pages/admin/Admin.vue') as Promise<any>,
-    // 路由守卫，需要登录才能访问
+    component: () => import('../pages/Admin.vue') as Promise<any>,
+    // 路由守卫，需要管理员登录才能访问
     meta: {
-      requiresAuth: true,
+      requiresAdmin: true,
     },
+    children: [
+      {
+        path: 'dashboard',
+        name: 'AdminDashboard',
+        component: () => import('../pages/Admin.vue') as Promise<any>,
+      },
+      {
+        path: 'posts',
+        name: 'AdminPosts',
+        component: () => import('../pages/Admin.vue') as Promise<any>,
+      },
+      {
+        path: 'upload',
+        name: 'AdminUpload',
+        component: () => import('../pages/Admin.vue') as Promise<any>,
+      },
+      {
+        path: 'settings',
+        name: 'AdminSettings',
+        component: () => import('../pages/Admin.vue') as Promise<any>,
+      },
+    ],
   },
   {
     path: '/manager',
@@ -118,8 +150,34 @@ const router = createRouter({
 
 // 路由守卫
 router.beforeEach((to, from, next) => {
-  // 检查路由是否需要认证
-  if (to.matched.some(record => record.meta.requiresAuth)) {
+  // 检查路由是否需要管理员认证
+  if (to.matched.some(record => record.meta.requiresAdmin)) {
+    // 检查是否存在管理员token
+    const adminToken = localStorage.getItem('adminToken')
+
+    // 处理/admin根路径
+    if (to.path === '/admin' || to.path === '/admin/') {
+      if (adminToken) {
+        // 已登录，重定向到仪表板
+        next({ path: '/admin/dashboard' })
+      } else {
+        // 未登录，显示登录界面
+        next()
+      }
+      return
+    }
+
+    // 处理其他需要管理员认证的路由
+    if (!adminToken) {
+      // 没有管理员token，重定向到/admin显示登录界面
+      next({ path: '/admin' })
+    } else {
+      // 有管理员token，继续访问
+      next()
+    }
+  }
+  // 检查路由是否需要普通用户认证
+  else if (to.matched.some(record => record.meta.requiresAuth)) {
     // 检查是否存在token
     const token = localStorage.getItem('token')
     if (!token) {

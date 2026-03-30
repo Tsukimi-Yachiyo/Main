@@ -45,4 +45,10 @@ public interface UserService {
       * @return 是否签到成功
       */
      Result<Boolean> sign();
+
+     /**
+      * 开启钱包
+      * @return 开启钱包结果
+      */
+     Result<Boolean> openWallet();
 }

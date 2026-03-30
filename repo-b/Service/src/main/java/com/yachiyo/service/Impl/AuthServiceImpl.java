@@ -158,9 +158,21 @@ public class AuthServiceImpl implements AuthService {
         }
     }
 
-    private boolean verifyCode(String email, String code) {
-        String redisCode = (String) redisTemplate.opsForValue().get("code:" + email);
-        return redisCode != null && redisCode.equals(code);
+    @Override
+    public Result<String> RefreshToken(String token, Long userId) {
+        try{
+            // 查看 redis 中是否存在用户
+            if (!redisTemplate.hasKey("user:" + userId)) {
+                return Result.error("400","用户不存在",null);
+            }
+            redisTemplate.delete("user:" + userId);
+            SecurityContextHolder.clearContext();
+            User user = userMapper.selectById(new LambdaQueryWrapper<User>().eq(User::getId, userId));
+            String newToken = userEntrySystem(user);
+            return Result.success(newToken, "刷新令牌成功",null);
+        } catch (Exception e) {
+            return Result.error("500","刷新令牌失败",e.getMessage());
+        }
     }
 
     private String userEntrySystem(User user) throws IOException {
@@ -175,5 +187,9 @@ public class AuthServiceImpl implements AuthService {
         return token;
     }
 
+    private boolean verifyCode(String email, String code) {
+        String storedCode = (String) redisTemplate.opsForValue().get("code:" + email);
+        return code != null && code.equals(storedCode);
+    }
 
 }

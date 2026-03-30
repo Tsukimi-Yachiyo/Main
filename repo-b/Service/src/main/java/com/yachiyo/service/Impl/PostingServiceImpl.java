@@ -85,95 +85,6 @@ public class PostingServiceImpl implements PostingService {
     }
 
     @Override
-    public Result<Boolean> likePosting(Long postingId) {
-        try {
-            Long UserId = ((User) Objects.requireNonNull(Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getPrincipal())).getId();
-            if (!linkLikeMapper.selectByMap(Map.of("user_id", UserId, "posting_id", postingId)).isEmpty()) {
-                return Result.error("您已点赞该帖子");
-            }
-            LinkLike linkLike = new LinkLike();
-            linkLike.setUserId(UserId);
-            linkLike.setPostingId(postingId);
-            PostDetail postDetail = postDetailMapper.selectById(postingId);
-            postDetail.setLove(postDetail.getLove() + 1);
-            postDetailMapper.updateById(postDetail);
-            return Result.success(
-                    linkLikeMapper.insert(linkLike) > 0);
-        } catch (Exception e) {
-            return Result.error("500","点赞帖子失败：",e.getMessage());
-        }
-    }
-
-    @Override
-    public Result<Boolean> collectionPosting(Long postingId) {
-        try {
-            Long UserId = ((User) Objects.requireNonNull(Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getPrincipal())).getId();
-            if (!linkCollectionMapper.selectByMap(Map.of("user_id", UserId, "posting_id", postingId)).isEmpty()) {
-                return Result.error("您已收藏该帖子");
-            }
-
-            LinkCollection linkCollection = new LinkCollection();
-            linkCollection.setUserId(UserId);
-            linkCollection.setPostingId(postingId);
-            PostDetail postDetail = postDetailMapper.selectById(postingId);
-            postDetail.setCollection(postDetail.getCollection() + 1);
-            postDetailMapper.updateById(postDetail);
-            return Result.success(
-                    linkCollectionMapper.insert(linkCollection) > 0);
-        } catch (Exception e) {
-            return Result.error("500","收藏帖子失败：",e.getMessage());
-        }
-    }
-
-    @Override
-    public Result<Boolean> cancelLikePosting(Long postingId) {
-        try {
-            Long UserId = ((User) Objects.requireNonNull(Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getPrincipal())).getId();
-            PostDetail postDetail = postDetailMapper.selectById(postingId);
-            postDetail.setLove(postDetail.getLove() - 1);
-            postDetailMapper.updateById(postDetail);
-            return Result.success(
-                    linkLikeMapper.deleteByMap(Map.of("user_id", UserId, "posting_id", postingId)) > 0);
-        } catch (Exception e) {
-            return Result.error("500","取消点赞帖子失败：",e.getMessage());
-        }
-    }
-
-    @Override
-    public Result<Boolean> cancelCollectionPosting(Long postingId) {
-        try {
-            Long UserId = ((User) Objects.requireNonNull(Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getPrincipal())).getId();
-            PostDetail postDetail = postDetailMapper.selectById(postingId);
-            postDetail.setCollection(postDetail.getCollection() - 1);
-            postDetailMapper.updateById(postDetail);
-            return Result.success(
-                    linkCollectionMapper.deleteByMap(Map.of("user_id", UserId, "posting_id", postingId)) > 0);
-        } catch (Exception e) {
-            return Result.error("500","取消收藏帖子失败：",e.getMessage());
-        }
-    }
-
-    @Override
-    public Result<Boolean> isLiked(Long postingId) {
-        try {
-            Long UserId = ((User) Objects.requireNonNull(Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getPrincipal())).getId();
-            return Result.success(!linkLikeMapper.selectByMap(Map.of("user_id", UserId, "posting_id", postingId)).isEmpty());
-        } catch (Exception e) {
-            return Result.error("500","判断是否点赞帖子失败：",e.getMessage());
-        }
-    }
-
-    @Override
-    public Result<Boolean> isCollected(Long postingId) {
-        try {
-            Long UserId = ((User) Objects.requireNonNull(Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getPrincipal())).getId();
-            return Result.success(!linkCollectionMapper.selectByMap(Map.of("user_id", UserId, "posting_id", postingId)).isEmpty());
-        } catch (Exception e) {
-            return Result.error("500","判断是否收藏帖子失败：",e.getMessage());
-        }
-    }
-
-    @Override
     public Result<Boolean> uploadPosting(UploadPostingRequest posting) {
         try {
             Long UserId = ((User) Objects.requireNonNull(Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getPrincipal())).getId();
@@ -257,33 +168,6 @@ public class PostingServiceImpl implements PostingService {
             return Result.success(postEncapsulateResponse);
         } catch (Exception e) {
             return Result.error("500","获取帖子简述失败：",e.getMessage());
-        }
-    }
-
-    @Override
-    public Result<Long> getCollectionCount(Long postingId) {
-        try {
-            return Result.success(postDetailMapper.selectById(postingId).getCollection());
-        } catch (Exception e) {
-            return Result.error("500","获取帖子收藏数失败：",e.getMessage());
-        }
-    }
-
-    @Override
-    public Result<Long> getLikeCount(Long postingId) {
-        try {
-                return Result.success(postDetailMapper.selectById(postingId).getLove());
-        } catch (Exception e) {
-            return Result.error("500","获取帖子点赞数失败：",e.getMessage());
-        }
-    }
-
-    @Override
-    public Result<Long> getReadingCount(Long postingId) {
-        try {
-                return Result.success(postDetailMapper.selectById(postingId).getReading());
-        } catch (Exception e) {
-            return Result.error("500","获取帖子阅读数失败：",e.getMessage());
         }
     }
 

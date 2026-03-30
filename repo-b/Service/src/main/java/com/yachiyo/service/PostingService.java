@@ -26,30 +26,6 @@ public interface PostingService {
     Result<List<Long>> getCollectionPosting();
 
     /**
-     * 点赞
-     */
-    @Deprecated
-    Result<Boolean> likePosting(Long postingId);
-
-    /**
-     * 收藏
-     */
-    @Deprecated
-    Result<Boolean> collectionPosting(Long postingId);
-
-    /**
-     * 取消点赞
-     */
-    @Deprecated
-    Result<Boolean> cancelLikePosting(Long postingId);
-
-    /**
-     * 取消收藏
-     */
-    @Deprecated
-    Result<Boolean> cancelCollectionPosting(Long postingId);
-
-    /**
      * 上传帖子
      */
     Result<Boolean> uploadPosting(UploadPostingRequest posting);
@@ -64,35 +40,6 @@ public interface PostingService {
      */
     Result<PostEncapsulateResponse> getPostingEncapsulate(Long postingId);
 
-    /**
-     * 获取帖子的收藏数
-     */
-    @Deprecated
-    Result<Long> getCollectionCount(Long postingId);
-
-    /**
-     * 获取帖子的点赞数
-     */
-    @Deprecated
-    Result<Long> getLikeCount(Long postingId);
-
-    /**
-     * 判断是否点赞帖子
-     */
-    @Deprecated
-    Result<Boolean> isLiked(Long postingId);
-
-    /**
-     * 判断是否收藏帖子
-     */
-    @Deprecated
-    Result<Boolean> isCollected(Long postingId);
-
-    /**
-     * 获取帖子的阅读数
-     */
-    @Deprecated
-    Result<Long> getReadingCount(Long postingId);
 
     /**
      * 获取帖子的金币数

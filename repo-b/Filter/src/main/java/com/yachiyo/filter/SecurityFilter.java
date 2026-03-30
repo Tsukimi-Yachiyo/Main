@@ -1,6 +1,8 @@
 package com.yachiyo.filter;
 
 import com.yachiyo.Config.SecurityConfig;
+import com.yachiyo.Config.YamlConfigProperties;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -15,15 +17,17 @@ import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfigurationSource;
 
+import java.util.List;
+
 /**
  * 安全过滤器
  */
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityFilter  extends AbstractHttpConfigurer<SecurityFilter, HttpSecurity> {
 
-    @Value("${security.open-api}")
-    private String[] openApi;
+    private final YamlConfigProperties yamlConfigProperties;
 
     @Autowired
     private CorsConfigurationSource corsConfigurationSource;
@@ -33,9 +37,11 @@ public class SecurityFilter  extends AbstractHttpConfigurer<SecurityFilter, Http
 
     @Bean
     public DefaultSecurityFilterChain filterChain(HttpSecurity http) {
+        // 将 List 转换为 String[]
+        String[] openApiArray = yamlConfigProperties.getOpenApi().toArray(String[]::new);
         http
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(openApi).permitAll()
+                        .requestMatchers(openApiArray).permitAll()
                         .requestMatchers("/api/v3/**").permitAll()
                         .requestMatchers("/api/v2/**").hasRole("USER")
                         .anyRequest().authenticated()
