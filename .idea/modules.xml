@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="ProjectModuleManager">
-    <modules>
-      <module fileurl="file://$PROJECT_DIR$/EasyYachiyoClient/EasyYachiyoClient.iml" filepath="$PROJECT_DIR$/EasyYachiyoClient/EasyYachiyoClient.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/TsukimiYachiyo.iml" filepath="$PROJECT_DIR$/.idea/TsukimiYachiyo.iml" />
-    </modules>
-  </component>
-</project>

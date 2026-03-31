@@ -1,6 +1,0 @@
-[49188:42768:0302/100642.225:ERROR:chrome\browser\process_singleton_win.cc:421] Lock file can not be created! Error code: 5
-[49188:42768:0302/100642.225:ERROR:chrome\app\chrome_main_delegate.cc:514] Failed to create a ProcessSingleton for your profile directory. This means that running multiple instances would start multiple browser processes rather than opening a new window in the existing process. Aborting now to avoid profile corruption.
-[49188:36392:0302/100642.225:ERROR:cef\libcef\browser\main_runner.cc:77] ContentMainRun failed with exit code 21
-[50644:48688:0302/100853.479:ERROR:chrome\browser\process_singleton_win.cc:421] Lock file can not be created! Error code: 5
-[50644:48688:0302/100853.480:ERROR:chrome\app\chrome_main_delegate.cc:514] Failed to create a ProcessSingleton for your profile directory. This means that running multiple instances would start multiple browser processes rather than opening a new window in the existing process. Aborting now to avoid profile corruption.
-[50644:46016:0302/100853.480:ERROR:cef\libcef\browser\main_runner.cc:77] ContentMainRun failed with exit code 21
