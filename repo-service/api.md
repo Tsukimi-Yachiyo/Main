@@ -991,18 +991,27 @@ Authorization: Bearer <your_jwt_token>
 
 **认证**: ✅ 需要
 
-**响应体** (`Result<List<Long>>`):
+**响应体** (`Result<List<SelfPostResponse>>`):
 
 ```json
 {
   "code": "200",
   "message": "success",
-  "data": [123, 456],
+  "data": [
+    {
+      "postingId": 123,
+      "approved": true
+    },
+    {
+      "postingId": 456,
+      "approved": false
+    }
+  ],
   "detail": null
 }
 ```
 
-返回用户发布的帖子 ID 列表
+返回用户发布的帖子列表，包含帖子ID和审核状态
 
 ---
 
@@ -1023,6 +1032,8 @@ Authorization: Bearer <your_jwt_token>
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | keyword | String | 是 | 搜索关键词 |
+| pageNum | Integer | 是 | 页码 |
+| pageSize | Integer | 是 | 每页大小 |
 
 **响应体** (`Result<List<Long>>`):
 
@@ -1592,9 +1603,10 @@ curl -X GET "http://localhost:8080/file/generate?fileName=1%2Favatar.jpg&expire=
 
 ```json
 {
-  "amount": 100,
-  "type": "INCOME",
-  "reason": "帖子奖励"
+  "fromUserId": 123,
+  "toUserId": 456,
+  "type": "TIP",
+  "amount": 100
 }
 ```
 
@@ -1602,9 +1614,10 @@ curl -X GET "http://localhost:8080/file/generate?fileName=1%2Favatar.jpg&expire=
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| amount | Integer | 是 | 交易金额（正数） |
-| type | String | 是 | 交易类型：`INCOME`（收入）、`EXPENSE`（支出） |
-| reason | String | 否 | 交易原因 |
+| fromUserId | Long | 否 | 发送方用户ID |
+| toUserId | Long | 否 | 接收方用户ID |
+| type | TradeType | 是 | 交易类型：TIP（打赏）、CHECKIN（签到）、MAIL（邮箱）、CHARGE（充值）、BUY（购买） |
+| amount | Double | 是 | 交易金额 |
 
 **响应体** (`Result<Boolean>`):
 
@@ -2059,6 +2072,58 @@ Hello World!
 
 ## 数据模型
 
+### 枚举类
+
+#### GoodType
+
+| 枚举值 | 说明 |
+|--------|------|
+| GIFT | 礼物 |
+| DECORATION | 装饰 |
+| SKIN | 皮肤 |
+
+#### InteractionAction
+
+| 枚举值 | 说明 |
+|--------|------|
+| ADD | 添加互动（点赞/收藏） |
+| REMOVE | 移除互动（取消点赞/取消收藏） |
+| TOGGLE | 切换互动状态（如果已存在则取消，否则添加） |
+
+#### InteractionType
+
+| 枚举值 | 说明 |
+|--------|------|
+| LIKE | 点赞 |
+| COLLECTION | 收藏 |
+
+#### PostingStatus
+
+| 枚举值 | 说明 |
+|--------|------|
+| PENDING | 待审核 |
+| APPROVED | 已审核通过 |
+| REJECTED | 已拒绝 |
+| ALL | 所有状态（用于查询） |
+
+#### ReviewAction
+
+| 枚举值 | 说明 |
+|--------|------|
+| APPROVE | 审核通过 |
+| REJECT | 审核拒绝 |
+| DELETE | 删除帖子 |
+
+#### TradeType
+
+| 枚举值 | 说明 |
+|--------|------|
+| TIP | 打赏 |
+| CHECKIN | 签到 |
+| MAIL | 邮箱 |
+| CHARGE | 充值 |
+| BUY | 购买 |
+
 ### DTO 类
 
 #### LoginRequest
@@ -2254,29 +2319,29 @@ Hello World!
 #### CoinChangeRequest
 ```json5
 {
-  "amount": "Integer",
-  "type": "String",  // 交易类型：INCOME（收入）、EXPENSE（支出）
-  "reason": "String" // 交易原因
+  "fromUserId": "Long",  // 发送方用户ID
+  "toUserId": "Long",    // 接收方用户ID
+  "type": "TradeType",   // 交易类型：TIP（打赏）、CHECKIN（签到）、MAIL（邮箱）、CHARGE（充值）、BUY（购买）
+  "amount": "Double"      // 交易金额
 }
 ```
 
 #### BuyResponse
 ```json5
 {
-  "goodId": "Integer",
-  "goodName": "String",
-  "buyTime": "Date"
+  "goodId": "Long",
+  "buyTime": "Time"
 }
 ```
 
 #### Good
 ```json5
 {
-  "id": "Integer",
-  "name": "String",
-  "description": "String",
-  "price": "Integer",
-  "stock": "Integer"
+  "id": "Integer",     // 商品ID
+  "name": "String",    // 商品名称
+  "price": "Double",   // 商品价格
+  "goodType": "GoodType", // 商品类型：GIFT（礼物）、DECORATION（装饰）、SKIN（皮肤）
+  "description": "String" // 商品描述
 }
 ```
 
@@ -2431,9 +2496,17 @@ Hello World!
 ---
 
 **文档生成时间**: 2026-03-29
-**文档版本**: v1.4 (admin接口更新版)
+**文档版本**: v1.5 (接口和数据模型更新版)
 
 **更新日志**:
+
+### v1.5 (2026-03-29)
+- 更新金币交易接口：修改请求参数结构，使用TradeType枚举
+- 更新帖子搜索接口：添加pageNum和pageSize参数
+- 更新获取自己的帖子接口：响应体从List<Long>改为List<SelfPostResponse>
+- 新增枚举类定义：GoodType、InteractionAction、InteractionType、PostingStatus、ReviewAction、TradeType
+- 更新数据模型：修正CoinChangeRequest、BuyResponse、Good的字段定义
+- 确保所有接口信息与代码实现完全一致
 
 ### v1.4 (2026-03-29)
 - 根据 commit 93c141e 更新管理员接口

@@ -117,9 +117,10 @@ public class AuthServiceImpl implements AuthService {
     public Result<Boolean> ChangePassword(RegisterRequest registerRequest) {
         try{
             if (!verifyCode(registerRequest.getEmail(), registerRequest.getCode())) {
-                return Result.error("400","验证码错误",null);
+                return Result.error("400.1","验证码错误",null);
             }
             User user = new User();
+            user.setName(registerRequest.getUsername());
             user.setPassword(securitySafeToolConfig.md5(registerRequest.getPassword()));
             userMapper.update(user, new LambdaQueryWrapper<User>().eq(User::getName, user.getName()));
             return Result.success(true, "密码更改成功",null);
@@ -140,16 +141,13 @@ public class AuthServiceImpl implements AuthService {
     public Result<String> LoginByEmail(MailLoginRequest mailLoginRequest) {
         try {
             User user = new User();
+            if (!verifyCode(mailLoginRequest.getEmail(), mailLoginRequest.getCode())) {
+                return Result.error("400","验证码错误",null);
+            }
             user.setEmail(mailLoginRequest.getEmail());
-            user.setPassword(securitySafeToolConfig.md5(mailLoginRequest.getPassword()));
-            User selectUser = userMapper.selectOne(new LambdaQueryWrapper<User>().eq(User::getEmail, user.getEmail())
-                    .eq(User::getPassword, user.getPassword()));
+            User selectUser = userMapper.selectOne(new LambdaQueryWrapper<User>().eq(User::getEmail, user.getEmail()));
             if (selectUser == null) {
-                boolean IsExistUser = userMapper.selectCount(new LambdaQueryWrapper<User>().eq(User::getEmail, user.getEmail())) == 0;
-                if (IsExistUser) {
-                    return Result.error("400.1","邮箱不存在",null);
-                }
-                return Result.error("400.2","密码错误",null);
+                return Result.error("400.1","邮箱不存在",null);
             }
             String token = userEntrySystem(selectUser);
             return Result.success(token, "登录成功",null);

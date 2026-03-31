@@ -72,11 +72,19 @@ spring:
 
 custom:
   config:
-    interval: "0 0 0/24 * * ? "
-    enable: true # 是否启用日期调度器
-    message: "初始配置"
+    # 推荐任务间隔
+    recommendation:
+      interval: "0 0/1 * * * ?" # 每10分钟执行一次
+      enable: true # 是否启用推荐任务
+      message: "初始配置"
+
+    # 日期调度器间隔
     holiday:
-      url: https://timor.tech/api/holiday/info/{date}
+      interval: "0 0 0/24 * * ? "
+      enable: true # 是否启用日期调度器
+      message: "初始配置"
+      holiday:
+        url: https://timor.tech/api/holiday/info/{date}
 
 # 服务器配置
 server:
@@ -98,6 +106,7 @@ security:
     - /api/yachiyo/168/mini/admin/login
     - /api/v1/auth/refresh-token
     - /api/v1/auth/login-by-email
+    - /api/v1/auth/change-password
 
 management:
   endpoints:

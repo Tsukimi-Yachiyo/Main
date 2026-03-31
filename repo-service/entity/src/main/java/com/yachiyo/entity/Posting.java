@@ -6,6 +6,9 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+import java.util.Date;
+
 @Data @TableName("posting")
 public class Posting {
 
@@ -22,4 +25,8 @@ public class Posting {
 
     @TableField("is_approved")
     private Boolean isApproved;
+
+    private LocalDateTime createTime;
+
+    private Long score;
 }

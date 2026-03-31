@@ -80,7 +80,6 @@ public class JwtFilter extends OncePerRequestFilter {
                 sendErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED, "未认证");
             }
         } catch (Exception e) {
-            e.printStackTrace();
             // 处理异常，返回内部服务器错误
             sendErrorResponse(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "服务器错误"+e.getMessage());
         }

@@ -44,6 +44,7 @@ public class SecurityFilter  extends AbstractHttpConfigurer<SecurityFilter, Http
                         .requestMatchers(openApiArray).permitAll()
                         .requestMatchers("/api/v3/**").permitAll()
                         .requestMatchers("/api/v2/**").hasRole("USER")
+                        .requestMatchers("/api/v2/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .csrf(AbstractHttpConfigurer::disable)

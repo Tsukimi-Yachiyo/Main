@@ -14,9 +14,4 @@ public class MailLoginRequest {
      * 验证码
      */
     private String code;
-
-    /**
-     * 密码
-     */
-    private String password;
 }

@@ -16,7 +16,8 @@ import java.util.Date;
 public class DateServiceImpl implements DateService {
 
     private final JsonMapper jsonMapper;
-    @Value("${custom.config.holiday.url}")
+
+    @Value("${custom.config.holiday.holiday.url}")
     private String holidayUrl;
 
     public DateServiceImpl(JsonMapper jsonMapper) {

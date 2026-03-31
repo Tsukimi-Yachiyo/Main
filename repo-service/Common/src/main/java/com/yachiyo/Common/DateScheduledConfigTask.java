@@ -1,9 +1,9 @@
 package com.yachiyo.Common;
 
-import com.yachiyo.Config.CustomConfig;
 import com.yachiyo.service.DateService;
 import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -17,8 +17,6 @@ import java.util.Date;
 @EnableScheduling
 public class DateScheduledConfigTask {
 
-    @Autowired
-    private CustomConfig customConfig;
 
     @Resource(name = "redisTemplate")
     private RedisTemplate<String, String> redisTemplate;
@@ -26,13 +24,16 @@ public class DateScheduledConfigTask {
     @Autowired
     private DateService dateService;
 
-    @Scheduled(cron = "${custom.config.interval}")
+    @Value("${custom.config.holiday.enable}")
+    private boolean enable;
+
+    @Scheduled(cron = "${custom.config.holiday.interval}")
     public void scheduledTask() {
         dateScheduledConfigTask();
     }
 
     public void dateScheduledConfigTask() {
-        if (customConfig.isEnable()) {
+        if (enable) {
             LocalDate localDate = LocalDate.now();
             int day = localDate.getDayOfMonth();
             int month = localDate.getMonthValue();
