@@ -35,9 +35,9 @@ jobs:
           #  在这里配置子仓库列表：【目录名】=【子仓库地址】
           ###########################################################################
           repos=(
-            "repo-a=https://github.com/Tsukimi-Yachiyo/YachiyoWeb.git"
-            "repo-b=https://github.com/Tsukimi-Yachiyo/YachiyoService.git"
-            "repo-c=https://github.com/Tsukimi-Yachiyo/YachiyoClient.git"
+            "repo-web=https://github.com/Tsukimi-Yachiyo/YachiyoWeb.git"
+            "repo-service=https://github.com/Tsukimi-Yachiyo/YachiyoService.git"
+            "repo-client=https://github.com/Tsukimi-Yachiyo/YachiyoClient.git"
           )
 
           # 循环同步
