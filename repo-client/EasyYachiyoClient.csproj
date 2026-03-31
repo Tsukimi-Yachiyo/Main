@@ -1,0 +1,68 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <ApplicationIcon>resource\ico.ico</ApplicationIcon>
+    <PlatformTarget>x64</PlatformTarget>
+    <NoWarn>$(NoWarn);NU1701</NoWarn>
+    <AssetTargetFallback>$(AssetTargetFallback);net462;</AssetTargetFallback> 
+  </PropertyGroup>
+
+
+
+  <ItemGroup>
+    <Resource Include="resource\*.png" />
+    <Resource Include="resource\*.jpg" />
+    <Resource Include="resource\*.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="resource\jar\**" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="resource\jdk\**" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="resource\dist\**" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CefSharp.Common" Version="145.0.260" />
+    <PackageReference Include="CefSharp.Wpf" Version="145.0.260" />
+    <PackageReference Include="SevenZipExtractor" Version="1.0.19" />
+    
+    <Reference Include="CefSharp">
+      <HintPath>$(NuGetPackageRoot)cefsharp.common\145.0.260\lib\net462\CefSharp.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="CefSharp.Wpf">
+      <HintPath>$(NuGetPackageRoot)cefsharp.wpf\145.0.260\lib\net462\CefSharp.Wpf.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="CefSharp.Core">
+      <HintPath>$(NuGetPackageRoot)cefsharp.common\145.0.260\lib\net462\CefSharp.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
+
+   <!-- 复制 CefSharp 原生依赖 -->
+  <Target Name="CopyCefSharpNativeFiles" AfterTargets="Build">
+    <!-- 复制 CefSharp 核心 DLL -->
+    <Copy SourceFiles="$(NuGetPackageRoot)cefsharp.common\145.0.260\lib\net462\CefSharp.dll"
+          DestinationFolder="$(OutputPath)"
+          OverwriteReadOnlyFiles="true" />
+    <Copy SourceFiles="$(NuGetPackageRoot)cefsharp.wpf\145.0.260\lib\net462\CefSharp.Wpf.dll"
+          DestinationFolder="$(OutputPath)"
+          OverwriteReadOnlyFiles="true" />
+    <Copy SourceFiles="$(NuGetPackageRoot)cefsharp.common\145.0.260\CefSharp\x64\CefSharp.Core.Runtime.dll"
+          DestinationFolder="$(OutputPath)"
+          OverwriteReadOnlyFiles="true" />
+    <Copy SourceFiles="$(NuGetPackageRoot)cefsharp.common\145.0.260\CefSharp\x64\CefSharp.BrowserSubprocess.exe"
+          DestinationFolder="$(OutputPath)"
+          OverwriteReadOnlyFiles="true" />
+    <Copy SourceFiles="$(NuGetPackageRoot)cefsharp.common\145.0.260\CefSharp\x64\CefSharp.BrowserSubprocess.Core.dll"
+          DestinationFolder="$(OutputPath)"
+          OverwriteReadOnlyFiles="true" />
+  </Target>
+
+</Project>

@@ -1,0 +1,91 @@
+# 开发环境
+
+# spring 配置
+spring:
+  # 数据库配置
+  datasource:
+    url: jdbc:mysql://localhost:3306/yachiyo_chat?useSSL=false&serverTimezone=UTC
+    username: ${mysql.username}
+    password: ${mysql.password}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  # 定时任务配置
+  task:
+    scheduling:
+      pool:
+        size: 5
+      thread-name-prefix: scheduling-task-
+  # 邮箱配置
+  mail:
+    host: smtp.qq.com
+    port: 465
+    username: ${email.username}
+    password: ${email.password}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          ssl:
+            enable: true
+  # 模型配置
+  ai:
+    chat:
+      memory:
+        repository:
+          jdbc:
+            initialize-schema: always
+    ollama:
+      chat:
+        options:
+          model: 1473443474/tsukimi-yachiyo
+      embedding:
+        enabled: true
+        model: all-minilm
+      base-url: http://localhost:11434
+    openai-sdk:
+      api-key: ${openai.api-key}
+      base-url: ${openai.base-url}
+      chat:
+        options:
+          model: qwen-plus
+          temperature: 0.8
+
+custom:
+  config:
+    interval: "0 0 0/24 * * ? "
+    enable: true # 是否启用日期调度器
+    message: "初始配置"
+    holiday:
+      url: https://timor.tech/api/holiday/info/{date}
+
+# mybatis-plus 配置
+mybatis-plus:
+  global-config:
+    db-config:
+      id-type: assign-id
+  configuration:
+    map-underscore-to-camel-case: true
+  mapper-locations: classpath*:/mapper/**/*.xml
+  type-aliases-package: com.yachiyo.entity
+
+# 日志配置
+logging:
+  level:
+    com.sicau: DEBUG
+    org.springframework.jdbc: DEBUG
+
+# 安全配置
+security:
+  open-api: /api/v1/auth/login,/api/v1/auth/register,/api/v1/auth/send-code
+
+# jwt 配置
+jwt:
+  secret: "12345678901234567890123456789012"
+  expiration: 3600000
+  token-header: "Authorization"
+  token-prefix: "Bearer "
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: refresh
