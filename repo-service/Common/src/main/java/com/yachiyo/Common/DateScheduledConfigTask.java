@@ -39,6 +39,7 @@ public class DateScheduledConfigTask {
             int month = localDate.getMonthValue();
 
             String holiday = dateService.getHoliday(new Date());
+
             HashOperations<String, String, String> hashOps = redisTemplate.opsForHash();
             hashOps.put("public:date", "day", String.valueOf(day));
             hashOps.put("public:date", "month", String.valueOf(month));

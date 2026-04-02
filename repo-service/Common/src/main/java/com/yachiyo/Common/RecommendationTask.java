@@ -59,7 +59,7 @@ public class RecommendationTask {
 
                     double scoreActivity = log(reading +1 )* (1 + likeRate + collectionRate);
 
-                    double score = scoreActivity * (1/(1 + hourPoor));
+                    double score = scoreActivity * (1/(1 + hourPoor)) * 100000;
                     posting.setScore((long) score);
                     postingMapper.updateById(posting);
                 }

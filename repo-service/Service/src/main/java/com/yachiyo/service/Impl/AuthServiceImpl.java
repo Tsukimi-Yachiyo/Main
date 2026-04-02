@@ -11,8 +11,10 @@ import com.yachiyo.dto.MailLoginRequest;
 import com.yachiyo.dto.RegisterRequest;
 import com.yachiyo.entity.User;
 import com.yachiyo.entity.UserDetail;
+import com.yachiyo.entity.UserWallet;
 import com.yachiyo.mapper.UserDetailMapper;
 import com.yachiyo.mapper.UserMapper;
+import com.yachiyo.mapper.UserWalletMapper;
 import com.yachiyo.result.Result;
 import com.yachiyo.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +54,9 @@ public class AuthServiceImpl implements AuthService {
     @Autowired
     private IOFileUtils ioFileUtils;
 
+    @Autowired
+    private UserWalletMapper userWalletMapper;
+
     @Override
     public Result<String> Login(LoginRequest loginRequest) {
         try {
@@ -88,6 +93,10 @@ public class AuthServiceImpl implements AuthService {
             }
             user.setEmail(registerRequest.getEmail());
             userMapper.insert(user);
+            UserWallet userWallet = new UserWallet();
+            userWallet.setId(user.getId());
+            userWallet.setBalance(800.0);
+            userWalletMapper.insert(userWallet);
             UserDetail userDetail = new UserDetail();
             userDetail.setUserId(user.getId());
             userDetailMapper.insert(userDetail);

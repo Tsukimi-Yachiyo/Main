@@ -74,7 +74,7 @@ custom:
   config:
     # 推荐任务间隔
     recommendation:
-      interval: "0 0/1 * * * ?" # 每10分钟执行一次
+      interval: "0 0/10 * * * ?" # 每10分钟执行一次
       enable: true # 是否启用推荐任务
       message: "初始配置"
 
@@ -85,6 +85,12 @@ custom:
       message: "初始配置"
       holiday:
         url: https://timor.tech/api/holiday/info/{date}
+
+
+    approved:
+      interval: "0 0 0/1 * * ?" # 每1小时执行一次
+      enable: true # 是否启用审批任务
+      message: "初始配置"
 
 # 服务器配置
 server:
