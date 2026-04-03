@@ -419,7 +419,7 @@
     display: flex;
     flex-direction: column;
     width: 100%;
-    height: calc(100vh - 80px);
+    height: 100%;
     z-index: 1;
     background: linear-gradient(180deg, #3498db 0%, #2a5298 30%, #0d1642 70%, #050b2c 100%);
     overflow: hidden;
@@ -428,6 +428,15 @@
     border-top: none !important;
     margin-top: 0 !important;
 
+    /*
+    todo:
+          background: radial-gradient(
+        circle at 50% 10%,
+        rgba(135, 206, 235, 0.35),
+        rgba(0, 191, 255, 0.15) 60%,
+        transparent 100%
+      );
+    */
     &::before {
       content: '';
       position: absolute;
@@ -435,12 +444,6 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: radial-gradient(
-        circle at 50% 10%,
-        rgba(135, 206, 235, 0.35),
-        rgba(0, 191, 255, 0.15) 60%,
-        transparent 100%
-      );
       backdrop-filter: blur(1.5px);
       opacity: 0.85;
       pointer-events: none;
@@ -548,11 +551,11 @@
 
   /* 模型加载覆盖层 */
   .model-loading-overlay {
-    position: fixed;
-    top: 80px;
+    position: absolute;
+    top: 0;
     left: 0;
     width: 100%;
-    height: calc(100vh - 80px);
+    height: 100%;
     background: #000000;
     display: flex;
     align-items: center;
@@ -1202,7 +1205,7 @@
       bottom: 0;
       z-index: 400;
       transition: transform 0.3s ease;
-      height: 100vh;
+      height: 100%;
     }
 
     .sidebar.sidebar-open {
