@@ -5,12 +5,15 @@ import com.yachiyo.entity.CoinLog;
 import com.yachiyo.entity.UserWallet;
 import com.yachiyo.mapper.CoinLogMapper;
 import com.yachiyo.mapper.UserWalletMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Component
+@Slf4j
 public class CoinUtils {
 
     @Autowired
@@ -35,15 +38,15 @@ public class CoinUtils {
 
         // 更新用户余额
         userWallet.setBalance(userWallet.getBalance() + amount);
-        userWallet.setVersion(userWallet.getVersion() + 1);
 
         // 保存用户信息
-        if (userWalletMapper.update(userWallet, new UpdateWrapper<UserWallet>().eq("version", userWallet.getVersion()).eq("id", toUserId)) == 0) {
+        if (userWalletMapper.update(userWallet, new UpdateWrapper<UserWallet>().eq("id", toUserId)) == 0) {
+            log.info("待更新ID：{}，版本号：{}", toUserId, userWallet.getVersion());
             throw new IllegalArgumentException("更新用户余额失败");
         }
 
         // 记录交易日志
-        coinLogMapper.insert(new CoinLog(null, toUserId, amount, userWallet.getBalance(), userWallet.getBalance() + amount, businessType, LocalDateTime.now()));
+        coinLogMapper.insert(new CoinLog(null, toUserId, amount, userWallet.getBalance(), userWallet.getBalance() + amount, businessType, LocalDate.now()));
     }
 
     public Integer getCoin(Long userId) {

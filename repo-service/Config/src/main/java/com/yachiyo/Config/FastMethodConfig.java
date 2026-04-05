@@ -2,6 +2,7 @@ package com.yachiyo.Config;
 
 import com.baomidou.mybatisplus.annotation.DbType;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
+import com.github.kwfilter.util.KeyWordFilter;
 import com.yachiyo.entity.User;
 import com.yachiyo.entity.UserDetail;
 import com.yachiyo.mapper.UserDetailMapper;
@@ -75,5 +76,10 @@ public class FastMethodConfig {
             return false;
         }
         return false;
+    }
+
+    @Bean
+    public KeyWordFilter keyWordFilter() {
+        return KeyWordFilter.getInstance();
     }
 }

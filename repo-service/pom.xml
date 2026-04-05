@@ -166,6 +166,12 @@
             <artifactId>spring-boot-starter-webflux</artifactId>
         </dependency>
 
+        <!-- 敏感词过滤 -->
+        <dependency>
+            <groupId>com.github.kwfilter</groupId>
+            <artifactId>keywordfilter</artifactId>
+            <version>2.0.0-RELEASE</version>
+        </dependency>
     </dependencies>
 
     <dependencyManagement>

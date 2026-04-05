@@ -1,9 +1,6 @@
 package com.yachiyo.service;
 
-import com.yachiyo.dto.GetPostingResponse;
-import com.yachiyo.dto.PostEncapsulateResponse;
-import com.yachiyo.dto.SelfPostResponse;
-import com.yachiyo.dto.UploadPostingRequest;
+import com.yachiyo.dto.*;
 import com.yachiyo.result.Result;
 
 import java.util.List;
@@ -40,12 +37,6 @@ public interface PostingService {
      */
     Result<PostEncapsulateResponse> getPostingEncapsulate(Long postingId);
 
-
-    /**
-     * 获取帖子的金币数
-     */
-    Result<Long> getCoinCount(Long postingId);
-
     /**
      * 删除帖子
      */
@@ -56,7 +47,7 @@ public interface PostingService {
      * @param request 互动请求
      * @return 操作结果
      */
-    Result<Boolean> handleInteraction(com.yachiyo.dto.InteractionRequest request);
+    Result<Boolean> handleInteraction(InteractionRequest request);
 
     /**
      * 获取帖子统计信息

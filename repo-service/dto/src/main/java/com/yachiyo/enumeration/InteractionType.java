@@ -13,5 +13,10 @@ public enum InteractionType {
     /**
      * 收藏
      */
-    COLLECTION
+    COLLECTION,
+
+    /**
+     * 投币
+     */
+    COIN
 }

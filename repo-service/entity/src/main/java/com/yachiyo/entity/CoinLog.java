@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data @TableName("coin_log") @AllArgsConstructor
@@ -33,6 +34,6 @@ public class CoinLog {
     private String businessType;
 
     @TableField("create_time")
-    private LocalDateTime createTime;
+    private LocalDate createTime;
 
 }

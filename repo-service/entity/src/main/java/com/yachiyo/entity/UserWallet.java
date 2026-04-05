@@ -1,11 +1,9 @@
 package com.yachiyo.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data @TableName("user_wallet")
@@ -16,11 +14,12 @@ public class UserWallet {
 
     private Double balance;
 
+    @Version
     private Integer version;
 
     @TableField("create_time")
-    private LocalDateTime createTime;
+    private LocalDate createTime;
 
     @TableField("update_time")
-    private LocalDateTime updateTime;
+    private LocalDate updateTime;
 }

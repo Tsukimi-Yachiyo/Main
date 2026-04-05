@@ -37,4 +37,9 @@ public class PostStatsResponse {
      * 当前用户是否收藏
      */
     private Boolean collected;
+
+    /**
+     * 当前用户投币数量
+     */
+    private Long coined;
 }

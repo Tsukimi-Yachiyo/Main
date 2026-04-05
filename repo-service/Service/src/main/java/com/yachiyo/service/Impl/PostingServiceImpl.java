@@ -2,6 +2,7 @@ package com.yachiyo.service.Impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yachiyo.Utils.FileUrlUtil;
 import com.yachiyo.dto.GetPostingResponse;
 import com.yachiyo.dto.InteractionRequest;
@@ -37,13 +38,15 @@ public class PostingServiceImpl implements PostingService {
     private final LinkCollectionMapper linkCollectionMapper;
     private final IOFileUtils ioFileUtils;
     private final FileUrlUtil fileUrlUtil;
+    private final LinkCoinMapper linkCoinMapper;
 
     @Autowired
-    public PostingServiceImpl(PostingMapper postingMapper, PostDetailMapper postDetailMapper, LinkLikeMapper linkLikeMapper, LinkCollectionMapper linkCollectionMapper, com.yachiyo.Utils.IOFileUtils ioFileUtils, FileUrlUtil fileUrlUtil) {
+    public PostingServiceImpl(PostingMapper postingMapper, PostDetailMapper postDetailMapper, LinkLikeMapper linkLikeMapper, LinkCollectionMapper linkCollectionMapper, com.yachiyo.Utils.IOFileUtils ioFileUtils, FileUrlUtil fileUrlUtil, LinkCoinMapper linkCoinMapper) {
         this.postingMapper = postingMapper;
         this.postDetailMapper = postDetailMapper;
         this.linkLikeMapper = linkLikeMapper;
         this.linkCollectionMapper = linkCollectionMapper;
+        this.linkCoinMapper = linkCoinMapper;
         this.ioFileUtils = ioFileUtils;
         this.fileUrlUtil = fileUrlUtil;
     }
@@ -51,13 +54,22 @@ public class PostingServiceImpl implements PostingService {
     @Override
     public Result<List<Long>> searchPosting(String keyword, Integer pageNum, Integer pageSize) {
         try {
+            Page<Posting> page = new Page<>(pageNum, pageSize);
+
             LambdaQueryWrapper<Posting> queryWrapper = new LambdaQueryWrapper<>();
-            queryWrapper.like(Posting::getTitle, "%" + keyword + "%");
-            queryWrapper.like(Posting::getContent, "%" + keyword + "%");
-            queryWrapper.orderByDesc(Posting::getScore);
-            queryWrapper.last("LIMIT " + pageSize + " OFFSET " + (pageNum - 1) * pageSize);
-            queryWrapper.eq(Posting::getIsApproved, true);
-            List<Long> postingIds = postingMapper.selectList(queryWrapper).stream().map(Posting::getId).collect(Collectors.toList());
+            queryWrapper.select(Posting::getId)
+                    .like(Posting::getTitle, "%" + keyword + "%")
+                    .or()
+                    .like(Posting::getContent, "%" + keyword + "%")
+                    .eq(Posting::getIsApproved, true)
+                    .orderByDesc(Posting::getScore);
+
+            postingMapper.selectPage(page, queryWrapper);
+
+            List<Long> postingIds = page.getRecords()
+                    .stream()
+                    .map(Posting::getId)
+                    .collect(Collectors.toList());
             return Result.success(postingIds);
         } catch (Exception e) {
             return Result.error("500","搜索帖子失败：",e.getMessage());
@@ -172,15 +184,6 @@ public class PostingServiceImpl implements PostingService {
     }
 
     @Override
-    public Result<Long> getCoinCount(Long postingId) {
-        try {
-                return Result.success(postDetailMapper.selectById(postingId).getCoin());
-        } catch (Exception e) {
-            return Result.error("500","获取帖子金币数失败：",e.getMessage());
-        }
-    }
-
-    @Override
     public Result<Boolean> deletePosting(Long postingId) {
         try {
             Long UserId = ((User) Objects.requireNonNull(Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getPrincipal())).getId();
@@ -244,12 +247,18 @@ public class PostingServiceImpl implements PostingService {
                     linkLike.setPostingId(postingId);
                     linkLikeMapper.insert(linkLike);
                     postDetail.setLove(postDetail.getLove() + 1);
-                } else {
+                } else if (type == InteractionType.COLLECTION) {
                     LinkCollection linkCollection = new LinkCollection();
                     linkCollection.setUserId(userId);
                     linkCollection.setPostingId(postingId);
                     linkCollectionMapper.insert(linkCollection);
                     postDetail.setCollection(postDetail.getCollection() + 1);
+                } else {
+                    LinkCoin linkCoin = new LinkCoin();
+                    linkCoin.setUserId(userId);
+                    linkCoin.setPostingId(postingId);
+                    linkCoinMapper.insert(linkCoin);
+                    postDetail.setCoin(postDetail.getCoin() + 1);
                 }
                 postDetailMapper.updateById(postDetail);
                 return Result.success(true);
@@ -298,11 +307,15 @@ public class PostingServiceImpl implements PostingService {
             if (userId != null) {
                 boolean liked = !linkLikeMapper.selectByMap(Map.of("user_id", userId, "posting_id", postingId)).isEmpty();
                 boolean collected = !linkCollectionMapper.selectByMap(Map.of("user_id", userId, "posting_id", postingId)).isEmpty();
+                Long coinCount = linkCoinMapper.selectCount(new QueryWrapper<LinkCoin>().eq("user_id", userId).eq("posting_id", postingId));
+
                 stats.setLiked(liked);
                 stats.setCollected(collected);
+                stats.setCoined(coinCount);
             } else {
                 stats.setLiked(false);
                 stats.setCollected(false);
+                stats.setCoined(0L);
             }
 
             return Result.success(stats);

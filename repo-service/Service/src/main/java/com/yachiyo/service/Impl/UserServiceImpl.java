@@ -24,7 +24,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import com.yachiyo.Utils.IOFileUtils;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -129,14 +131,15 @@ public class UserServiceImpl implements UserService {
         if (userDetail == null) {
             return Result.error("404", "用户不存在"+userId);
         }
-        QueryWrapper<CoinLog> queryWrapper = new QueryWrapper<CoinLog>().eq("user_id", userId).eq("business_type", TradeType.CHECKIN);
-        queryWrapper.orderByDesc("create_time");
-        // 从交易记录中查询用户是否已签到
-        CoinLog coinLog = coinLogMapper.selectOne(queryWrapper);
-        if (coinLog != null) {
-            if (LocalDateTime.now().isAfter(coinLog.getCreateTime().plusDays(1))) {
-                return Result.error("400", "用户已签到");
-            }
+        QueryWrapper<CoinLog> qw = new QueryWrapper<>();
+        qw.eq("user_id", userId)
+                .eq("business_type", TradeType.CHECKIN.name())    // 你的签到类型
+                .eq("create_time", LocalDate.now());
+
+        Long count = coinLogMapper.selectCount(qw);
+
+        if (count > 0) {
+            return Result.error("400", "今日已签到");
         }
         // 签到成功
         CoinChangeRequest coinChangeRequest = new CoinChangeRequest();
