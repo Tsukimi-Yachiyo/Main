@@ -5,14 +5,16 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.time.Duration;
+
 @Configuration
 public class MinioConfig {
 
-    @Value("${minio.endpoint}")
+    @Value("${spring.minio.endpoint}")
     private String endpoint;
-    @Value("${minio.accessKey}")
+    @Value("${spring.minio.access-key}")
     private String accessKey;
-    @Value("${minio.secretKey}")
+    @Value("${spring.minio.secret-key}")
     private String secretKey;
 
     @Bean

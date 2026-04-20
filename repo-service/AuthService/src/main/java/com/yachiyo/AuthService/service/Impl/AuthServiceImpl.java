@@ -167,6 +167,9 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public Result<String> RefreshToken(String token, Long userId) {
         try{
+            if (!jwtUtils.isTokenValid(token)){
+                return Result.error("403","token 不合法", null);
+            };
             // 查看 redis 中是否存在用户
             if (!redisTemplate.hasKey("user:" + userId)) {
                 return Result.error("400","用户不存在",null);

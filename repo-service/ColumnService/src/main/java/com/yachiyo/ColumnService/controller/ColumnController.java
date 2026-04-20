@@ -22,7 +22,7 @@ public class ColumnController {
     @Autowired
     private ColumnService columnService;
 
-    @GetMapping("/search")
+    @PostMapping("/search")
     public Result<List<ColumnResponse>> searchColumn(@RequestBody SearchRequest searchRequest) {
         return columnService.searchColumn(searchRequest);
     }

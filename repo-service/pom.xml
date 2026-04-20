@@ -31,6 +31,7 @@
         <module>ToolService</module>
         <module>AdminService</module>
         <module>ColumnService</module>
+        <module>QQBotService</module>
     </modules>
 	<scm>
 		<connection/>

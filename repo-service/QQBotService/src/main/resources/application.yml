@@ -1,14 +1,15 @@
 server:
-  port: 8972
-  tomcat:
-      connection-timeout: 3600000ms  # 连接超时 1小时
-      max-http-response-header-size: 8KB
-  max-http-request-header-size: 8KB
+  port: 8899
 
 spring:
   application:
-    name: file-service # 应用名称
+    name: qqbot-service
 
+  datasource:
+    url: jdbc:postgresql://localhost:5432/yachiyo?currentSchema=public&characterEncoding=utf8
+    username: ${postgresql.username}
+    password: ${postgresql.password}
+    driver-class-name: org.postgresql.Driver
 
   cloud:
     nacos:
@@ -26,16 +27,9 @@ spring:
         group: DEFAULT_GROUP
         file-extension: yaml          # 配置文件格式
         refresh-enabled: true         # 启用动态刷新
+
   config:
     import: nacos:${spring.application.name}
 
   profiles:
     include: secret
-  mvc:
-    async:
-      request-timeout: 3600000s
-
-  minio:
-    endpoint: http://127.0.0.1:9000
-    access-key: ${minio.accessKey}
-    secret-key: ${minio.secretKey}
