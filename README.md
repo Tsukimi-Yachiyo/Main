@@ -140,10 +140,10 @@ Tsukimi-Yachiyo 组织是一个专注于开发各类应用和服务的开源社�
 ---
 
 # 最近活动
-<iframe src="//player.bilibili.com/player.html?isOutside=true&aid=116436429249793&bvid=BV1WToKBwE7P&cid=37663473939&p=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe>
+[YachiyoCup2026](https://www.bilibili.com/video/BV1WToKBwE7P/?spm_id_from=333.1387.homepage.video_card.click)
 
 # 图片分享
-![Uploading Snipaste_2026-02-10_17-02-57.png…]()
+<img width="847" height="1275" alt="Snipaste_2026-02-10_17-02-57" src="https://github.com/user-attachments/assets/764ba971-4597-4ccf-947e-d7d4f0820562" />
 <img width="469" height="429" alt="Snipaste_2026-02-10_17-01-27" src="https://github.com/user-attachments/assets/bbf5a2e6-d6d2-4b2f-b558-3060f47aa8a1" />
 
 
