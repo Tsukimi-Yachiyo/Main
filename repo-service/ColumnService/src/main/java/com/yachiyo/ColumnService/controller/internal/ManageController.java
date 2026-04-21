@@ -15,7 +15,7 @@ public class ManageController {
 
     private final ColumnService columnService;
 
-    @PutMapping()
+    @PostMapping("/add-column")
     public Result<Boolean> addColumn(@RequestPart AddColumnRequest addColumnRequest) {
         return columnService.addColumn(addColumnRequest);
     }

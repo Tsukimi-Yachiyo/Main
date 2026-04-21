@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/internal/coin")
-public class CoinController {
+public class CoinInternalController {
 
     @Autowired
     private CoinService coinService;

@@ -15,7 +15,7 @@ public interface FileClient {
                   @RequestParam("time") long time,
                   @RequestParam(value = "prefix", defaultValue = "save") String prefix) ;
 
-    @PutMapping("/save")
+    @PostMapping("/save")
     boolean save(
             @RequestParam("fileName") String fileName,
             @RequestParam(required = false) MultipartFile file);

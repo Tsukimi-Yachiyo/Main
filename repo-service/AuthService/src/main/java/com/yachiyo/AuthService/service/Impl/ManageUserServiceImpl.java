@@ -19,15 +19,15 @@ public class ManageUserServiceImpl implements ManageUserService {
 
     @Override
     public Boolean SendEmail(String title,String email){
-        try {
-            for (User user : userMapper.selectList(null)) {
-                if (user.getEmail() != null) {
+        for (User user : userMapper.selectList(null)) {
+            if (user.getEmail() != null && !user.getEmail().isEmpty()) {
+                try {
                     mailUtils.sendMail(user.getEmail(), title, email);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
-            return true;
-        } catch (MessagingException e) {
-            return  false;
         }
+        return true;
     }
 }

@@ -23,6 +23,7 @@ public class SecurityConfig {
         http
                 .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/internal/**").permitAll()
                         .requestMatchers("/api/v2/coin/**").permitAll()
                         .requestMatchers("/api/v2/sign/**").permitAll()
                         .anyRequest().authenticated()

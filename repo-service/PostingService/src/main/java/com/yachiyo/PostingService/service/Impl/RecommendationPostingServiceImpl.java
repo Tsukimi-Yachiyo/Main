@@ -6,6 +6,7 @@ import com.yachiyo.PostingService.mapper.PostDetailMapper;
 import com.yachiyo.PostingService.mapper.PostingMapper;
 import com.yachiyo.PostingService.service.RecommendationPostingService;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -15,7 +16,7 @@ import java.util.List;
 import static java.lang.Math.log;
 import static java.lang.Math.min;
 
-@Service @AllArgsConstructor
+@Service @AllArgsConstructor @Slf4j
 public class RecommendationPostingServiceImpl implements RecommendationPostingService {
 
     private final PostingMapper postingMapper;

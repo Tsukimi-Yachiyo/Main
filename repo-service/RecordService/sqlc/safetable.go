@@ -7,13 +7,11 @@ import (
 	"github.com/spf13/viper"
 )
 
-// 白名单（支持并发安全）
 var (
 	safeTableMap = make(map[string]bool)
 	mu           sync.RWMutex // 并发安全锁
 )
 
-// 初始化：从 viper 加载默认白名单
 func InitSafeTables() {
 	mu.Lock()
 	defer mu.Unlock()
@@ -32,14 +30,13 @@ func InitSafeTables() {
 	}
 }
 
-// 校验表是否合法
+
 func IsSafeTable(table string) bool {
 	mu.RLock()
 	defer mu.RUnlock()
 	return safeTableMap[table]
 }
 
-// 新增表到白名单（创建表时调用）
 func AddTableToWhitelist(table string) {
 	if table == "" {
 		return

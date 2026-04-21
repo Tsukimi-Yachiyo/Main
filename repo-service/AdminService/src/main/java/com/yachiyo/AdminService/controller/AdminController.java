@@ -44,7 +44,7 @@ public class AdminController {
         return adminService.queryPostings(request);
     }
 
-    @PutMapping("/add-column")
+    @PostMapping("/add-column")
     public Result<Boolean> addColumn(@RequestPart @Valid AddColumnRequest request) {
         return columnClient.addColumn(request);
     }

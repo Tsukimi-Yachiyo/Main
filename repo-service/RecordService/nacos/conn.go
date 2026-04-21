@@ -41,6 +41,8 @@ func ConnectNacos() {
 		ServiceName: config.ServiceName,
 		Ip:          config.ServiceIp,
 		Port:        config.ServerPort,
+		Weight:      1.0,
+		ClusterName: "DEFAULT",
 		Healthy:     true,
 		Enable:      true,
 		Ephemeral:   true,

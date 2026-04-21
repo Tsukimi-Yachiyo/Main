@@ -3,12 +3,10 @@ package main
 import (
 	"database/sql"
 	"log"
-	"os"
 	"score/api"
 	"score/nacos"
 	db "score/sqlc"
 	"score/util"
-	"time"
 
 	_ "github.com/lib/pq"
 )
@@ -26,11 +24,6 @@ func main() {
 
 	}
 	nacos.ConnectNacos() //连接微服务nacos
-
-	go func(){
-	time.Sleep(120 * time.Second)
-	os.Exit(0)
-	}()
 
 	store := db.NewStore(conn)
 	server := api.NewServer(store)
