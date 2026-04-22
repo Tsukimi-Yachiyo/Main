@@ -1,0 +1,36 @@
+server:
+  port: 8866                                       # 网关服务监听端口
+
+spring:
+  application:
+    name: admin-service # 应用名称
+
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848   # Nacos 注册中心地址
+        namespace: public                # 命名空间ID（非名称），用于环境隔离
+        username: nacos             # 必须正确！默认是 nacos
+        password: KaguyaIrohaForever           # 必须正确！默认是 nacos
+        group: DEFAULT_GROUP
+      config:
+        server-addr: 127.0.0.1:8848   # Nacos 配置中心地址
+        namespace: public
+        username: nacos             # 必须正确！默认是 nacos
+        password: KaguyaIrohaForever           # 必须正确！默认是 nacos
+        group: DEFAULT_GROUP
+        file-extension: yaml          # 配置文件格式
+        refresh-enabled: true         # 启用动态刷新
+
+  config:
+    import: nacos:${spring.application.name}
+
+  profiles:
+    include: secret
+
+jwt:
+  secret: "12345678901234567890123456789012"
+  expiration: 3600000
+  token-header: "Authorization"
+  token-prefix: "Bearer "
+
