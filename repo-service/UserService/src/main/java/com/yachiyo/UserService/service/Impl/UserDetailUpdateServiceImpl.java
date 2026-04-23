@@ -40,10 +40,13 @@ public class UserDetailUpdateServiceImpl implements UserDetailUpdateService {
         UserDetail userDetail = new UserDetail();
         userDetail.setUserId(id);
 
-        // R2DBC 异步保存 + 异常处理
-        return userDetailRepository.save(userDetail)
-                .thenReturn(Result.success(true))
-                .onErrorReturn(Result.error("500", "初始化用户详情失败", null));
+        return userDetailRepository.insert(userDetail)
+                .then(Mono.just(Result.success(Boolean.TRUE)))
+                .onErrorResume(e -> Mono.just(Result.error(
+                        "500",
+                        "初始化用户详情失败",
+                        "数据库保存异常：" + e.getMessage()
+                )));
     }
 
     /**

@@ -1,10 +1,9 @@
 package com.yachiyo.UserService.service;
 
 import com.yachiyo.UserService.dto.PosterDetailResponse;
-import com.yachiyo.UserService.dto.UserDetailResponse;
+import com.yachiyo.UserService.dto.SelfUserDetailResponse;
 import com.yachiyo.UserService.result.Result;
 import org.springframework.http.codec.multipart.FilePart;
-import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Mono;
 
 public interface UserService {
@@ -13,14 +12,14 @@ public interface UserService {
      * 获取用户详情
      * @return 用户详情
      */
-    Mono<Result<UserDetailResponse>> getUserDetail(Long userId);
+    Mono<Result<SelfUserDetailResponse>> getUserDetail(Long userId);
 
     /**
      * 更新用户详情
-     * @param userDetailResponse 用户详情
+     * @param selfUserDetailResponse 用户详情
      * @return 是否更新成功
      */
-     Mono<Result<Boolean>> updateUserDetail(Long userId, UserDetailResponse userDetailResponse);
+     Mono<Result<Boolean>> updateUserDetail(Long userId, SelfUserDetailResponse selfUserDetailResponse);
 
     /**
      * 更新用户头像

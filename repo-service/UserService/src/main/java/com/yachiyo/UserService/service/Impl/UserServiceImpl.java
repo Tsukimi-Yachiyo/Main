@@ -2,7 +2,7 @@ package com.yachiyo.UserService.service.Impl;
 
 import com.yachiyo.UserService.client.FileClient;
 import com.yachiyo.UserService.dto.PosterDetailResponse;
-import com.yachiyo.UserService.dto.UserDetailResponse;
+import com.yachiyo.UserService.dto.SelfUserDetailResponse;
 import com.yachiyo.UserService.repository.UserDetailRepository;
 import com.yachiyo.UserService.result.Result;
 import com.yachiyo.UserService.service.UserService;
@@ -96,10 +96,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Mono<Result<UserDetailResponse>> getUserDetail(Long userId) {
+    public Mono<Result<SelfUserDetailResponse>> getUserDetail(Long userId) {
         return userDetailRepository.findById(userId)
                 .map(userDetail -> {
-                    UserDetailResponse resp = new UserDetailResponse();
+                    SelfUserDetailResponse resp = new SelfUserDetailResponse();
                     resp.setUserIntroduction(userDetail.getUserIntroduction());
                     resp.setUserName(userDetail.getUserName());
                     resp.setUserCity(userDetail.getUserCity());
@@ -111,23 +111,23 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Mono<Result<Boolean>> updateUserDetail(Long userId, UserDetailResponse userDetailResponse) {
+    public Mono<Result<Boolean>> updateUserDetail(Long userId, SelfUserDetailResponse selfUserDetailResponse) {
         return userDetailRepository.findById(userId)
                 .flatMap(existUser -> {
-                    if (userDetailResponse.getUserName() != null) {
-                        existUser.setUserName(userDetailResponse.getUserName());
+                    if (selfUserDetailResponse.getUserName() != null) {
+                        existUser.setUserName(selfUserDetailResponse.getUserName());
                     }
-                    if (userDetailResponse.getUserIntroduction() != null) {
-                        existUser.setUserIntroduction(userDetailResponse.getUserIntroduction());
+                    if (selfUserDetailResponse.getUserIntroduction() != null) {
+                        existUser.setUserIntroduction(selfUserDetailResponse.getUserIntroduction());
                     }
-                    if (userDetailResponse.getUserCity() != null) {
-                        existUser.setUserCity(userDetailResponse.getUserCity());
+                    if (selfUserDetailResponse.getUserCity() != null) {
+                        existUser.setUserCity(selfUserDetailResponse.getUserCity());
                     }
-                    if (userDetailResponse.getUserGender() != null) {
-                        existUser.setUserGender(userDetailResponse.getUserGender());
+                    if (selfUserDetailResponse.getUserGender() != null) {
+                        existUser.setUserGender(selfUserDetailResponse.getUserGender());
                     }
-                    if (userDetailResponse.getUserBirthday() != null) {
-                        existUser.setUserBirthday(userDetailResponse.getUserBirthday());
+                    if (selfUserDetailResponse.getUserBirthday() != null) {
+                        existUser.setUserBirthday(selfUserDetailResponse.getUserBirthday());
                     }
                     return userDetailRepository.save(existUser);
                 })

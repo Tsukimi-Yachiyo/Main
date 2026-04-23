@@ -86,7 +86,10 @@ public class AuthServiceImpl implements AuthService {
             }
             user.setEmail(registerRequest.getEmail());
             userMapper.insert(user);
-            walletInitClient.initWallet(user.getId());
+
+            if (!Objects.requireNonNull(walletInitClient.initWallet(user.getId())).getData()) {
+                throw new IOException("初始化钱包失败");
+            }
 
             if (!Objects.requireNonNull(userDetailClient.initUserDetail(user.getId())).getData()) {
                 throw new IOException("初始化用户详情失败");

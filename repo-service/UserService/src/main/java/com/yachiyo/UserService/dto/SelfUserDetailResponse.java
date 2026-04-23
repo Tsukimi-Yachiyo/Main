@@ -7,7 +7,7 @@ import lombok.experimental.Accessors;
 import java.sql.Date;
 
 @Data @Accessors(chain = true)
-public class UserDetailResponse {
+public class SelfUserDetailResponse {
 
     @SensitiveWordFilter(message = "用户名包含敏感词")
     String userName;
