@@ -91,7 +91,7 @@ public class UserDetailController {
      * @return 用户关注列表
      */
     @PostMapping("/detail/user/follow/get")
-    public Flux<Result<List<Long>>> getFolloweeList(@AuthenticationPrincipal String userId) {
+    public Flux<Result<Long>> getFolloweeList(@AuthenticationPrincipal String userId) {
         return userInteractService.getFolloweeList(Long.parseLong(userId));
     }
 
@@ -100,7 +100,7 @@ public class UserDetailController {
      * @return 用户粉丝列表
      */
     @PostMapping("/detail/user/follower/get")
-    public Flux<Result<List<Long>>> getFollowerList(@AuthenticationPrincipal String userId) {
+    public Flux<Result<Long>> getFollowerList(@AuthenticationPrincipal String userId) {
         return userInteractService.getFollowerList(Long.parseLong(userId));
     }
 
@@ -130,7 +130,7 @@ public class UserDetailController {
      * @return 用户搜索结果
      */
     @PostMapping("/detail/user/search")
-    public Flux<Result<List<SearchDetailResponse>>> searchUser(@AuthenticationPrincipal String userId, @RequestParam String userName, @RequestParam int pageNum, @RequestParam int pageSize) {
+    public Flux<Result<SearchDetailResponse>> searchUser(@AuthenticationPrincipal String userId, @RequestParam String userName, @RequestParam int pageNum, @RequestParam int pageSize) {
         return userInteractService.searchUser(Long.parseLong(userId), userName, pageNum, pageSize);
     }
 }

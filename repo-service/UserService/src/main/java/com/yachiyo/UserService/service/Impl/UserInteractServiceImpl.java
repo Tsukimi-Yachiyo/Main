@@ -44,17 +44,19 @@ public class UserInteractServiceImpl implements UserInteractService {
     }
 
     @Override
-    public Flux<Result<List<Long>>> getFolloweeList(Long userId) {
+    public Flux<Result<Long>> getFolloweeList(Long userId) {
         return followLinkRepository.findByFollowerId(userId)
-                .map(followLinks -> Result.success(followLinks.stream().map(FollowLink::getFolloweeId).collect(Collectors.toList())))
+                .map(FollowLink::getFolloweeId)
+                .map(Result::success)
                 .onErrorResume(error -> Flux.just(Result.error("500", error.getMessage(), "获取关注列表失败")));
     }
 
     @Override
-    public Flux<Result<List<Long>>> getFollowerList(Long userId) {
+    public Flux<Result<Long>> getFollowerList(Long userId) {
         return followLinkRepository.findByFolloweeId(userId)
-                .map(followLinks -> Result.success(followLinks.stream().map(FollowLink::getFollowerId).collect(Collectors.toList())))
-                .onErrorResume(error -> Mono.just(Result.error("500", error.getMessage(), "获取粉丝列表失败")));
+                .map(FollowLink::getFollowerId)
+                .map(Result::success)
+                .onErrorResume(error -> Flux.just(Result.error("500", error.getMessage(), "获取粉丝列表失败")));
     }
 
     @Override
@@ -78,37 +80,35 @@ public class UserInteractServiceImpl implements UserInteractService {
     }
 
     @Override
-    public Flux<Result<List<SearchDetailResponse>>> searchUser(long currentUserId, String userName, int pageNum, int pageSize) {
+    public Flux<Result<SearchDetailResponse>> searchUser(Long currentUserId, String userName, int pageNum, int pageSize) {
 
         if (pageNum < 1) pageNum = 1;
         if (pageSize < 1 || pageSize > 100) pageSize = 20;
 
         return userDetailRepository.findByUserNameContains(userName, PageRequest.of(pageNum - 1, pageSize))
                 .flatMap(userDetail -> {
-                    // 获取头像URL
-                    String avatarPath = String.format(AVATAR_PATH_FORMAT, userDetail.getUserId());
+                    // 并发查询
                     Mono<Boolean> isFollowing = followLinkRepository.existsFollowLinkByFolloweeIdAndFollowerId(userDetail.getUserId(), currentUserId);
                     Mono<Boolean> isFollowed = followLinkRepository.existsFollowLinkByFolloweeIdAndFollowerId(currentUserId, userDetail.getUserId());
                     Mono<Long> followerCount = followLinkRepository.countFollowLinkByFolloweeId(userDetail.getUserId());
-                    return Mono.zip(
-                                isFollowing,
-                                isFollowed,
-                                followerCount)
+
+                    // 组合三个 Mono
+                    return Mono.zip(isFollowing, isFollowed, followerCount)
                             .flatMap(tuple3 -> Mono.fromCallable(() -> {
-                                    SearchDetailResponse resp = new SearchDetailResponse();
-                                    resp.setUserName(userDetail.getUserName());
-                                    resp.setUserAvatar(fileClient.getUrl(avatarPath, 1000L));
-                                    resp.setIsFollowing(tuple3.getT1());
-                                    resp.setIsFollowed(tuple3.getT2());
-                                    resp.setFollowerCount(tuple3.getT3());
-                                    return resp;
-                                }).subscribeOn(Schedulers.boundedElastic())
-                            );
+                                String avatarPath = String.format(AVATAR_PATH_FORMAT, userDetail.getUserId());
+                                SearchDetailResponse resp = new SearchDetailResponse();
+                                resp.setUserName(userDetail.getUserName());
+                                resp.setUserAvatar(fileClient.getUrl(avatarPath, 1000L));
+                                resp.setIsFollowing(tuple3.getT1());
+                                resp.setIsFollowed(tuple3.getT2());
+                                resp.setFollowerCount(tuple3.getT3());
+                                return resp;
+                            }).subscribeOn(Schedulers.boundedElastic()));
                 })
-                .collectList()
-                .map(Result::success)
-                .onErrorResume(error -> Mono.just(Result.error("500", error.getMessage(), "搜索用户失败")))
-                .flux();
+                .map(Result::success) // 每条结果包装成 Result
+                .onErrorResume(error ->
+                        Flux.just(Result.error("500", error.getMessage(), "搜索用户失败"))
+                );
     }
 
     @Override
@@ -122,5 +122,19 @@ public class UserInteractServiceImpl implements UserInteractService {
                     boolean followed = tuple.getT2();
                     return Result.success(following && followed);
                 });
+    }
+
+    @Override
+    public Flux<Result<Long>> friends(Long currentUserId) {
+
+        return getFolloweeList(currentUserId)
+                .map(Result::getData)
+                .flatMap(
+                followeeId -> followLinkRepository.existsFollowLinkByFolloweeIdAndFollowerId(currentUserId, followeeId)
+                        .filter(Boolean::booleanValue)
+                        .thenReturn(Result.success(followeeId))
+                        .onErrorResume(error -> Mono.just(Result.error("500", error.getMessage(), "获取关注状态失败")))
+                );
+
     }
 }

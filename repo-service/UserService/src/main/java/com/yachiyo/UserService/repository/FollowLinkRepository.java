@@ -22,9 +22,9 @@ public interface FollowLinkRepository extends R2dbcRepository<FollowLink, Long> 
     """)
     Mono<Integer> insert(FollowLink followLink);
 
-    Flux<List<FollowLink>> findByFollowerId(Long userId);
+    Flux<FollowLink> findByFollowerId(Long userId);
 
-    Flux<List<FollowLink>> findByFolloweeId(Long userId);
+    Flux<FollowLink> findByFolloweeId(Long userId);
 
     Mono<Boolean> existsFollowLinkByFolloweeIdAndFollowerId(Long userId, long currentUserId);
 

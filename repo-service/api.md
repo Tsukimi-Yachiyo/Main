@@ -294,9 +294,11 @@ curl -X POST "http://localhost:8881/api/v1/auth/refresh-token?refreshToken=xxx&u
 
 ## 用户服务 (UserService)
 
+### 公开接口
+
 基础路径: `/api/v2/user`
 
-### 1. 更新用户头像
+#### 1. 更新用户头像
 
 **接口**: `POST /avatar/update`
 
@@ -324,7 +326,7 @@ curl -X POST http://localhost:8881/api/v2/user/avatar/update \
 
 ---
 
-### 2. 获取用户头像
+#### 2. 获取用户头像
 
 **接口**: `POST /avatar/get`
 
@@ -348,7 +350,7 @@ curl -X POST http://localhost:8881/api/v2/user/avatar/get \
 
 ---
 
-### 3. 获取当前用户详情
+#### 3. 获取当前用户详情
 
 **接口**: `POST /detail/get`
 
@@ -379,7 +381,7 @@ curl -X POST http://localhost:8881/api/v2/user/detail/get \
 
 ---
 
-### 4. 更新用户详情
+#### 4. 更新用户详情
 
 **接口**: `POST /detail/update`
 
@@ -424,7 +426,7 @@ curl -X POST http://localhost:8881/api/v2/user/detail/update \
 
 ---
 
-### 5. 获取指定用户详情
+#### 5. 获取指定用户详情
 
 **接口**: `POST /detail/get/user`
 
@@ -451,6 +453,301 @@ curl -X POST http://localhost:8881/api/v2/user/detail/update \
 ```bash
 curl -X POST "http://localhost:8881/api/v2/user/detail/get/user?userId=1" \
   -H "Authorization: Bearer {token}"
+```
+
+---
+
+#### 6. 获取发帖人详情
+
+**接口**: `POST /detail/poster/get`
+
+**需要认证**: 是
+
+**请求参数**:
+- `userId`: Long (Query 参数)
+
+**响应**:
+```json
+{
+  "code": "200",
+  "message": "success",
+  "data": {
+    "userName": "string",
+    "userAvatar": "string"
+  },
+  "detail": null
+}
+```
+
+**用例**:
+```bash
+curl -X POST "http://localhost:8881/api/v2/user/detail/poster/get?userId=1" \
+  -H "Authorization: Bearer {token}"
+```
+
+---
+
+#### 7. 获取用户公开详情
+
+**接口**: `POST /detail/user/detail/get`
+
+**需要认证**: 是
+
+**请求参数**:
+- `userId`: Long (Query 参数)
+
+**响应**:
+```json
+{
+  "code": "200",
+  "message": "success",
+  "data": {
+    "userIntroduction": "string",
+    "userCity": "string",
+    "userGender": "string"
+  },
+  "detail": null
+}
+```
+
+**用例**:
+```bash
+curl -X POST "http://localhost:8881/api/v2/user/detail/user/detail/get?userId=1" \
+  -H "Authorization: Bearer {token}"
+```
+
+---
+
+#### 8. 获取用户关注列表
+
+**接口**: `POST /detail/user/follow/get`
+
+**需要认证**: 是
+
+**响应**:
+```json
+{
+  "code": "200",
+  "message": "success",
+  "data": [1, 2, 3],
+  "detail": null
+}
+```
+
+**用例**:
+```bash
+curl -X POST http://localhost:8881/api/v2/user/detail/user/follow/get \
+  -H "Authorization: Bearer {token}"
+```
+
+---
+
+#### 9. 获取用户粉丝列表
+
+**接口**: `POST /detail/user/follower/get`
+
+**需要认证**: 是
+
+**响应**:
+```json
+{
+  "code": "200",
+  "message": "success",
+  "data": [1, 2, 3],
+  "detail": null
+}
+```
+
+**用例**:
+```bash
+curl -X POST http://localhost:8881/api/v2/user/detail/user/follower/get \
+  -H "Authorization: Bearer {token}"
+```
+
+---
+
+#### 10. 关注用户
+
+**接口**: `POST /detail/user/follow/follow`
+
+**需要认证**: 是
+
+**请求参数**:
+- `followeeId`: Long (Query 参数)
+
+**响应**:
+```json
+{
+  "code": "200",
+  "message": "success",
+  "data": true,
+  "detail": null
+}
+```
+
+**用例**:
+```bash
+curl -X POST "http://localhost:8881/api/v2/user/detail/user/follow/follow?followeeId=2" \
+  -H "Authorization: Bearer {token}"
+```
+
+---
+
+#### 11. 获取关注状态
+
+**接口**: `POST /detail/user/follow/status/get`
+
+**需要认证**: 是
+
+**请求参数**:
+- `followeeId`: Long (Query 参数)
+
+**响应**:
+```json
+{
+  "code": "200",
+  "message": "success",
+  "data": true,
+  "detail": null
+}
+```
+
+**用例**:
+```bash
+curl -X POST "http://localhost:8881/api/v2/user/detail/user/follow/status/get?followeeId=2" \
+  -H "Authorization: Bearer {token}"
+```
+
+---
+
+#### 12. 搜索用户
+
+**接口**: `POST /detail/user/search`
+
+**需要认证**: 是
+
+**请求参数**:
+- `userName`: String (Query 参数)
+- `pageNum`: int (Query 参数)
+- `pageSize`: int (Query 参数)
+
+**响应**:
+```json
+{
+  "code": "200",
+  "message": "success",
+  "data": [
+    {
+      "userName": "string",
+      "userAvatar": "string",
+      "followerCount": 100,
+      "isFollowing": true,
+      "isFollowed": false
+    }
+  ],
+  "detail": null
+}
+```
+
+**用例**:
+```bash
+curl -X POST "http://localhost:8881/api/v2/user/detail/user/search?userName=test&pageNum=1&pageSize=10" \
+  -H "Authorization: Bearer {token}"
+```
+
+---
+
+### 内部接口
+
+#### 用户详情内部接口
+
+基础路径: `/internal/user/detail`
+
+##### 1. 初始化用户详情
+
+**接口**: `POST /init/{id}`
+
+**需要认证**: 否（内部使用）
+
+**路径参数**:
+- `id`: Long - 用户ID
+
+**响应**:
+```json
+{
+  "code": "200",
+  "message": "success",
+  "data": true,
+  "detail": null
+}
+```
+
+---
+
+##### 2. 用户登录
+
+**接口**: `POST /login/{id}`
+
+**需要认证**: 否（内部使用）
+
+**路径参数**:
+- `id`: Long - 用户ID
+
+**响应**:
+```json
+{
+  "code": "200",
+  "message": "success",
+  "data": true,
+  "detail": null
+}
+```
+
+---
+
+#### 用户关注内部接口
+
+基础路径: `/internal/user/follow`
+
+##### 1. 检查是否为好友
+
+**接口**: `GET /isFriend`
+
+**需要认证**: 否（内部使用）
+
+**请求参数**:
+- `currentUserId`: Long (Query 参数)
+- `followeeId`: Long (Query 参数)
+
+**响应**:
+```json
+{
+  "code": "200",
+  "message": "success",
+  "data": true,
+  "detail": null
+}
+```
+
+---
+
+##### 2. 获取好友列表
+
+**接口**: `POST /friends`
+
+**需要认证**: 否（内部使用）
+
+**请求参数**:
+- `currentUserId`: Long (Query 参数)
+
+**响应**:
+```json
+{
+  "code": "200",
+  "message": "success",
+  "data": [1, 2, 3],
+  "detail": null
+}
 ```
 
 ---

@@ -22,14 +22,14 @@ public interface UserInteractService {
      * @param userId 用户ID
      * @return 用户关注列表
      */
-    Flux<Result<List<Long>>> getFolloweeList(Long userId);
+    Flux<Result<Long>> getFolloweeList(Long userId);
 
     /**
      * 获取用户粉丝列表
      * @param userId 用户ID
      * @return 用户粉丝列表
      */
-    Flux<Result<List<Long>>> getFollowerList(Long userId);
+    Flux<Result<Long>> getFollowerList(Long userId);
 
     /**
      * 获取用户用户详情
@@ -53,7 +53,7 @@ public interface UserInteractService {
      * @param pageSize 每页数量
      * @return 用户搜索结果
      */
-    Flux<Result<List<SearchDetailResponse>>> searchUser(long currentUserId, String userName, int pageNum, int pageSize);
+    Flux<Result<SearchDetailResponse>> searchUser(Long currentUserId, String userName, int pageNum, int pageSize);
 
     /**
      * 判断用户是否是好友
@@ -62,4 +62,11 @@ public interface UserInteractService {
      * @return 是否是好友
      */
     Mono<Result<Boolean>> isFriend(Long currentUserId, Long followeeId);
+
+    /**
+     * 获取用户好友列表
+     * @param currentUserId 当前用户ID
+     * @return 用户好友列表
+     */
+    Flux<Result<Long>> friends(Long currentUserId);
 }

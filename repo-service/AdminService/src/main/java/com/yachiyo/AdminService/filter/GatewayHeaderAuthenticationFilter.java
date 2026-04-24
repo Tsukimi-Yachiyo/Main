@@ -1,4 +1,4 @@
-package com.yachiyo.CoinService.filter;
+package com.yachiyo.AdminService.filter;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -22,6 +22,9 @@ public class GatewayHeaderAuthenticationFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
         String userId = request.getHeader("X-User-Id");
+        String role = request.getHeader("X-Role");
+
+
 
         if (userId != null) {
             UsernamePasswordAuthenticationToken auth =
@@ -30,6 +33,12 @@ public class GatewayHeaderAuthenticationFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(auth);
         } else {
             // 返回 403
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            return;
+        }
+
+        if (role == null || !role.equals("ADMIN")) {
+            // 非管理员角色，返回 403
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             return;
         }
